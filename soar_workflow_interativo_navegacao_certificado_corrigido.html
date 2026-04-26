@@ -1,0 +1,2978 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOAR na Prática – Mariana BS | Be Safe</title>
+<style>
+:root {
+  --bg: #0a0c10;
+  --surface: #111318;
+  --surface2: #181c24;
+  --surface3: #1e2230;
+  --border: #252a38;
+  --border2: #2e3448;
+  --accent: #00d4ff;
+  --accent2: #0099cc;
+  --accent-dim: #00d4ff22;
+  --green: #00ff88;
+  --green-dim: #00ff8822;
+  --yellow: #ffd700;
+  --yellow-dim: #ffd70022;
+  --red: #ff4455;
+  --red-dim: #ff445522;
+  --purple: #a855f7;
+  --purple-dim: #a855f722;
+  --text: #e8eaf0;
+  --text2: #8892a4;
+  --text3: #555f72;
+  --font-mono: 'Courier New', 'Consolas', monospace;
+  --font-sans: 'Segoe UI', 'Helvetica Neue', sans-serif;
+  --radius: 8px;
+  --radius-lg: 14px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  --glow: 0 0 20px rgba(0,212,255,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== SCREEN SYSTEM ===== */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; }
+
+/* ===== INTRO SCREEN ===== */
+#screen-intro {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: radial-gradient(ellipse at 50% 0%, #0d1526 0%, var(--bg) 70%);
+  position: relative;
+  overflow: hidden;
+}
+
+#screen-intro::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+.intro-badge {
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 6px 16px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+
+.intro-logo {
+  font-size: 13px;
+  color: var(--text2);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  margin-bottom: 8px;
+}
+
+.intro-logo span { color: var(--accent); }
+
+.intro-title {
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.1;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, var(--text) 30%, var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.intro-subtitle {
+  font-size: 16px;
+  color: var(--text2);
+  text-align: center;
+  max-width: 580px;
+  line-height: 1.6;
+  margin-bottom: 40px;
+}
+
+.intro-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  max-width: 900px;
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.intro-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.intro-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+
+.intro-card-icon {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.intro-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.intro-card p {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.intro-card .acid {
+  font-size: 11px;
+  color: var(--text3);
+  font-style: italic;
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.warning-box {
+  background: #1a1200;
+  border: 1px solid var(--yellow);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  max-width: 700px;
+  width: 100%;
+  margin-bottom: 32px;
+}
+
+.warning-box h4 {
+  color: var(--yellow);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  margin-bottom: 8px;
+}
+
+.warning-box p {
+  font-size: 13px;
+  color: #c8b86a;
+  line-height: 1.6;
+}
+
+.intro-meta {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.intro-meta-item {
+  text-align: center;
+}
+
+.intro-meta-item .label {
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-family: var(--font-mono);
+  margin-bottom: 4px;
+}
+
+.intro-meta-item .value {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  color: #000;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 1px;
+  padding: 14px 40px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,212,255,0.4);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 10px 24px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+
+.btn-secondary:hover {
+  background: var(--accent-dim);
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--red);
+  font-size: 12px;
+  padding: 8px 16px;
+  border: 1px solid var(--red);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+
+.btn-danger:hover { background: var(--red-dim); }
+
+/* ===== CASE SELECTION SCREEN ===== */
+#screen-case {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: var(--bg);
+}
+
+.case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  max-width: 900px;
+  width: 100%;
+  margin: 32px 0;
+}
+
+.case-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.case-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--accent-dim), transparent);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.case-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: var(--glow);
+}
+
+.case-card:hover::after { opacity: 1; }
+
+.case-card.selected {
+  border-color: var(--accent);
+  background: var(--surface2);
+  box-shadow: var(--glow);
+}
+
+.case-severity {
+  display: inline-block;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
+.sev-critical { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+.sev-high { background: #2a1500; color: #ff8c00; border: 1px solid #ff8c00; }
+.sev-medium { background: var(--yellow-dim); color: var(--yellow); border: 1px solid var(--yellow); }
+
+.case-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.case-card p {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.case-card .acid-note {
+  font-size: 11px;
+  color: var(--text3);
+  font-style: italic;
+  margin-top: 12px;
+  font-family: var(--font-mono);
+}
+
+/* ===== BUILDER SCREEN ===== */
+#screen-builder {
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.builder-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.builder-brand {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text2);
+  letter-spacing: 2px;
+}
+
+.builder-brand span { color: var(--accent); }
+
+.builder-case-tag {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: var(--text2);
+  font-family: var(--font-mono);
+}
+
+.builder-case-tag b { color: var(--accent); }
+
+.builder-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.builder-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* LEFT PANEL */
+.panel-left {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-section-title {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text3);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 14px 16px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.incident-info {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.incident-field {
+  margin-bottom: 12px;
+}
+
+.incident-field .field-label {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.incident-field .field-value {
+  font-size: 12px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  background: var(--surface2);
+  padding: 5px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  word-break: break-all;
+}
+
+.field-value.critical { color: var(--red); border-color: var(--red); }
+.field-value.high { color: #ff8c00; border-color: #ff8c00; }
+.field-value.medium { color: var(--yellow); border-color: var(--yellow); }
+
+/* Block palette */
+.block-palette {
+  padding: 8px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.palette-block {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text2);
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.palette-block:hover {
+  border-color: var(--accent);
+  color: var(--text);
+  background: var(--surface3);
+}
+
+.palette-block.distractor {
+  border-style: dashed;
+  border-color: #5a3b20;
+  color: #c7a06a;
+}
+
+.palette-block.distractor:hover {
+  border-color: var(--yellow);
+  background: #221806;
+}
+
+.workflow-node.node-distractor {
+  border-left: 3px solid var(--yellow);
+  background: #171206;
+}
+
+.workflow-node.node-distractor .node-title::after {
+  content: '  • fora de escopo';
+  color: var(--yellow);
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 400;
+}
+
+.palette-block.added {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.palette-block .block-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* CANVAS */
+.canvas-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 20px;
+  background: var(--bg);
+  position: relative;
+}
+
+.canvas-area::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle, var(--border) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.canvas-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: var(--text3);
+  pointer-events: none;
+}
+
+.canvas-empty h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.canvas-empty p {
+  font-size: 13px;
+  font-family: var(--font-mono);
+}
+
+.workflow-chain {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  max-width: 520px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.workflow-node {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  position: relative;
+  transition: all 0.2s;
+  cursor: default;
+}
+
+.workflow-node:hover { border-color: var(--border2); }
+
+.workflow-node.node-pending { border-left: 3px solid var(--text3); }
+.workflow-node.node-running { border-left: 3px solid var(--accent); box-shadow: 0 0 12px rgba(0,212,255,0.2); animation: pulse-border 0.8s infinite; }
+.workflow-node.node-done { border-left: 3px solid var(--green); }
+.workflow-node.node-error { border-left: 3px solid var(--red); }
+.workflow-node.node-decision { border-left: 3px solid var(--yellow); }
+
+@keyframes pulse-border {
+  0%,100% { box-shadow: 0 0 8px rgba(0,212,255,0.2); }
+  50% { box-shadow: 0 0 20px rgba(0,212,255,0.5); }
+}
+
+.node-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.node-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.node-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+
+.node-status {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--surface2);
+  color: var(--text3);
+}
+
+.status-running { background: var(--accent-dim); color: var(--accent); }
+.status-done { background: var(--green-dim); color: var(--green); }
+.status-error { background: var(--red-dim); color: var(--red); }
+
+.node-meta {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+  padding-left: 38px;
+}
+
+.node-log {
+  font-size: 11px;
+  color: var(--green);
+  font-family: var(--font-mono);
+  padding-left: 38px;
+  margin-top: 6px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.node-connector {
+  width: 2px;
+  height: 20px;
+  background: linear-gradient(180deg, var(--border2), var(--accent));
+  position: relative;
+  margin: 0 auto;
+}
+
+.node-connector::after {
+  content: '▼';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  color: var(--accent);
+}
+
+.node-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  color: var(--text3);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: all 0.15s;
+  line-height: 1;
+}
+
+.node-remove:hover { background: var(--red-dim); color: var(--red); }
+
+/* RIGHT PANEL */
+.panel-right {
+  width: 300px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.guide-card {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.guide-card h4 {
+  font-size: 13px;
+  color: var(--accent);
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.guide-row {
+  margin-bottom: 10px;
+}
+
+.guide-row .label {
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: var(--font-mono);
+  margin-bottom: 3px;
+}
+
+.guide-row .value {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+.guide-row .value.mono { font-family: var(--font-mono); font-size: 11px; }
+
+.acid-humor {
+  background: #1a1800;
+  border: 1px solid #3a3200;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 11px;
+  color: #b8a840;
+  font-style: italic;
+  font-family: var(--font-mono);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* CHECKLIST */
+.checklist {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text3);
+  padding: 5px 0;
+  font-family: var(--font-mono);
+  border-bottom: 1px solid var(--border);
+}
+
+.checklist-item:last-child { border: none; }
+
+.checklist-item.ok { color: var(--green); }
+
+.check-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+}
+
+.check-dot.done { background: var(--green); border-color: var(--green); color: #000; }
+
+/* SCORE */
+.score-display {
+  padding: 16px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.score-ring {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: conic-gradient(var(--accent) 0%, var(--surface2) 0%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  position: relative;
+}
+
+.score-ring::before {
+  content: '';
+  width: 60px;
+  height: 60px;
+  background: var(--surface);
+  border-radius: 50%;
+  position: absolute;
+}
+
+.score-num {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent);
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-mono);
+}
+
+.score-label {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* PROGRESS BAR */
+.progress-bar-wrap {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.progress-bar-label {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.progress-bar {
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent2), var(--accent));
+  border-radius: 3px;
+  transition: width 0.4s;
+}
+
+/* ===== EXECUTION SCREEN ===== */
+#screen-execution {
+  flex-direction: column;
+  padding: 32px;
+  background: var(--bg);
+  align-items: center;
+}
+
+.exec-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.exec-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.exec-subtitle {
+  font-size: 14px;
+  color: var(--text2);
+  font-family: var(--font-mono);
+}
+
+.exec-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.exec-log-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.exec-log-header {
+  background: var(--surface2);
+  padding: 12px 16px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text2);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exec-log-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.exec-log-body {
+  padding: 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  max-height: 500px;
+  overflow-y: auto;
+  line-height: 1.7;
+}
+
+.log-line {
+  margin-bottom: 2px;
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn { to { opacity: 1; } }
+
+.log-time { color: var(--text3); }
+.log-ok { color: var(--green); }
+.log-info { color: var(--accent); }
+.log-warn { color: var(--yellow); }
+.log-err { color: var(--red); }
+.log-data { color: var(--purple); }
+
+.exec-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.exec-metrics {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.exec-metrics h4 {
+  font-size: 12px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.metric-item:last-child { border: none; }
+
+.metric-label { color: var(--text2); }
+.metric-value { color: var(--accent); font-family: var(--font-mono); font-weight: 700; }
+.metric-value.green { color: var(--green); }
+
+.exec-verdict {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.exec-verdict h4 {
+  font-size: 12px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.verdict-status {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  font-family: var(--font-mono);
+}
+
+.exec-soar-note {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.exec-soar-note p {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.exec-soar-note .acid {
+  color: var(--text3);
+  font-style: italic;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  margin-top: 8px;
+  display: block;
+}
+
+/* ===== RESULT SCREEN ===== */
+#screen-result {
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  background: var(--bg);
+}
+
+.result-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--green);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.result-subtitle {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 40px;
+  text-align: center;
+  font-family: var(--font-mono);
+}
+
+.cert-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  max-width: 480px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.cert-form h3 {
+  font-size: 18px;
+  color: var(--text);
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 11px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.form-group input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  outline: none;
+  font-family: var(--font-sans);
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus { border-color: var(--accent); }
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+/* CERTIFICATE CANVAS */
+#cert-canvas { display: none; }
+
+.cert-preview {
+  max-width: 700px;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+/* MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  max-width: 500px;
+  width: 100%;
+  position: relative;
+}
+
+.modal h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--text3);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  z-index: 9999;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s;
+  max-width: 320px;
+}
+
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.ok { border-color: var(--green); color: var(--green); }
+.toast.err { border-color: var(--red); color: var(--red); }
+.toast.warn { border-color: var(--yellow); color: var(--yellow); }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+/* RESPONSIVE — versão ajustada para desktop, tablet e mobile real */
+@media (max-width: 1100px) {
+  .builder-header {
+    min-height: 64px;
+    height: auto;
+    padding: 8px 12px;
+    gap: 10px;
+  }
+  .builder-brand, .builder-case-tag { white-space: nowrap; }
+  .panel-left { width: 220px; }
+  .panel-right { width: 280px; }
+  .exec-layout { grid-template-columns: 1fr; max-width: 900px; }
+  .exec-right { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  #screen-builder { height: auto; min-height: 100vh; overflow: visible; }
+  .builder-header {
+    position: sticky; top: 0; flex-direction: column; align-items: stretch;
+    gap: 8px; height: auto; min-height: unset; padding: 10px;
+  }
+  .builder-brand, .builder-case-tag { text-align: center; white-space: normal; }
+  .builder-actions {
+    width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+  }
+  .builder-actions button { width: 100%; min-height: 38px; font-size: 11px; padding: 8px 10px; white-space: normal; }
+  .builder-body { flex-direction: column; overflow: visible; }
+  .panel-left, .panel-right {
+    width: 100%; max-height: none; height: auto; border-right: none; border-left: none;
+    border-bottom: 1px solid var(--border); overflow: visible;
+  }
+  .incident-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  .incident-field { margin-bottom: 0; }
+  .block-palette {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px; max-height: 280px; overflow-y: auto; padding: 10px;
+  }
+  .palette-block { margin-bottom: 0; min-height: 44px; }
+  .canvas-area { min-height: 520px; padding: 16px 12px; overflow-x: auto; overflow-y: visible; }
+  .canvas-area::before { position: absolute; }
+  .canvas-empty { width: min(90vw, 320px); }
+  .workflow-chain { width: 100%; max-width: 100%; min-width: 0; padding: 0 4px 24px; }
+  .workflow-node { width: 100%; min-width: 0; padding: 14px 12px; }
+  .node-header { align-items: flex-start; }
+  .node-title { font-size: 12px; line-height: 1.35; padding-right: 18px; }
+  .node-meta, .node-log { padding-left: 0; margin-top: 8px; }
+  .score-display, .progress-bar-wrap, .checklist, .guide-card { padding-left: 14px; padding-right: 14px; }
+  #screen-execution, #screen-result { padding: 24px 14px; }
+  .exec-layout { grid-template-columns: 1fr; gap: 16px; }
+  .exec-right { display: flex; flex-direction: column; }
+  .exec-log-body { max-height: 420px; font-size: 11px; }
+  .result-actions { flex-direction: column; width: 100%; max-width: 480px; }
+  .result-actions button, .cert-form button { width: 100%; }
+}
+
+@media (max-width: 520px) {
+  #screen-intro, #screen-case, #screen-result { padding: 24px 12px; }
+  .intro-title { font-size: 26px; }
+  .intro-subtitle { font-size: 14px; }
+  .intro-cards, .case-grid { grid-template-columns: 1fr; }
+  .intro-meta { gap: 16px; }
+  .builder-actions { grid-template-columns: 1fr; }
+  .builder-actions button { min-height: 40px; }
+  .block-palette { grid-template-columns: 1fr; max-height: 340px; }
+  .canvas-area { min-height: 480px; padding: 14px 10px; }
+  .workflow-node { padding: 12px 10px; }
+  .node-icon { width: 24px; height: 24px; font-size: 12px; }
+  .node-status { font-size: 9px; padding: 2px 6px; }
+  .exec-title, .result-title { font-size: 24px; }
+  .exec-log-header { letter-spacing: 1px; }
+  .metric-item { align-items: flex-start; gap: 10px; }
+  .metric-value { text-align: right; }
+  .cert-form { padding: 22px 16px; }
+}
+
+@media (max-width: 360px) {
+  .intro-badge, .builder-brand, .builder-case-tag, .progress-bar-label, .panel-section-title { letter-spacing: 1px; }
+  .btn-primary, .btn-secondary, .btn-danger { font-size: 11px; }
+  .incident-info { grid-template-columns: 1fr; }
+}
+
+/* FIX: permite clique/touch nos cards e blocos mesmo com camadas visuais */
+.case-card::after { pointer-events: none; }
+.case-card > * { position: relative; z-index: 1; }
+.case-card, .palette-block, .btn-primary, .btn-secondary, .btn-danger { touch-action: manipulation; }
+.palette-block { position: relative; z-index: 2; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+
+
+/* ===== FIX: rolagem real do painel de blocos disponíveis =====
+   Corrige o caso em que o painel esquerdo não permite chegar até a paleta
+   ou a paleta fica espremida dentro do layout flex. */
+.builder-body,
+.panel-left,
+.panel-right,
+.block-palette,
+.canvas-area {
+  min-height: 0;
+}
+
+.panel-left {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.incident-info,
+.panel-section-title {
+  flex-shrink: 0;
+}
+
+.block-palette {
+  flex: 1 1 auto;
+  min-height: 260px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 96px;
+}
+
+@media (min-width: 769px) {
+  .panel-left {
+    height: calc(100vh - 56px);
+  }
+
+  .block-palette {
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .panel-left {
+    display: block;
+    max-height: 72vh;
+    overflow-y: auto;
+  }
+
+  .block-palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    max-height: 380px;
+    min-height: 260px;
+    overflow-y: auto;
+    padding-bottom: 96px;
+  }
+}
+
+@media (max-width: 520px) {
+  .panel-left {
+    max-height: 78vh;
+  }
+
+  .block-palette {
+    grid-template-columns: 1fr;
+    max-height: 430px;
+    min-height: 300px;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ============================= INTRO SCREEN ============================= -->
+<div id="screen-intro" class="screen active">
+  <div class="intro-badge">Treinamento Prático · Turma 2026</div>
+  <div class="intro-logo"><span>Mariana BS</span> – Be Safe</div>
+  <h1 class="intro-title">Workflow SOAR<br>na Prática</h1>
+  <p class="intro-subtitle">
+    Monte, execute e entenda um playbook de resposta a incidentes do zero —
+    sem mágica, sem IA onisciente e sem ilusões corporativas.
+  </p>
+
+  <div class="intro-cards">
+    <div class="intro-card">
+      <div class="intro-card-icon">⚡</div>
+      <h3>O que é SOAR?</h3>
+      <p>Security Orchestration, Automation and Response. Uma plataforma que conecta ferramentas de segurança via API, executa playbooks automaticamente e coordena a resposta a incidentes — reduzindo o trabalho repetitivo que mata analistas por dentro.</p>
+      <div class="acid">Não é IA. É automação glorificada com boa UI.</div>
+    </div>
+    <div class="intro-card">
+      <div class="intro-card-icon">🔗</div>
+      <h3>Orquestração</h3>
+      <p>Coordena múltiplas ferramentas de segurança (SIEM, EDR, Firewall, Diretório) para trabalharem juntas via APIs e webhooks. A orquestra está afinada? O maestro faz milagre. Está desafinada? Bem-vindo ao caos.</p>
+      <div class="acid">Garbage In, Garbage Out — agora 10x mais rápido.</div>
+    </div>
+    <div class="intro-card">
+      <div class="intro-card-icon">🤖</div>
+      <h3>Automação</h3>
+      <p>Executa ações repetíveis sem intervenção humana: bloquear IP, isolar endpoint, desabilitar usuário. Funciona 24/7, não reclama de plantão e não pede aumento. A parte ruim: se o playbook estiver errado, ele vai executar errado com confiança total.</p>
+      <div class="acid">Automatize com sabedoria ou automatize o desastre.</div>
+    </div>
+    <div class="intro-card">
+      <div class="intro-card-icon">🧠</div>
+      <h3>Resposta</h3>
+      <p>Ações concretas tomadas a partir de uma decisão — isolar, bloquear, notificar, escalar. O SOAR não decide "o que fazer" do nada. Quem define isso é o playbook. E quem escreve o playbook... é o analista. Aquele que você ainda precisa.</p>
+      <div class="acid">O analista não foi substituído. Foi promovido a arquiteto de playbooks mal documentados.</div>
+    </div>
+  </div>
+
+  <div class="warning-box">
+    <h4>⚠ Aviso Técnico Importante</h4>
+    <p>SOAR <strong>não cria detecção</strong>. Ele consome alertas gerados por outras ferramentas (SIEM, EDR, IDS). Sem boas regras de detecção, sem boas integrações e sem playbooks bem definidos, o SOAR é apenas um orçamento caro com muitos conectores desconfigurados. Alertas ruins entram, ações erradas saem — na velocidade da luz.</p>
+  </div>
+
+  <div class="intro-meta">
+    <div class="intro-meta-item">
+      <div class="label">Carga horária</div>
+      <div class="value">1 hora</div>
+    </div>
+    <div class="intro-meta-item">
+      <div class="label">Instrutora</div>
+      <div class="value">Mariana BS</div>
+    </div>
+    <div class="intro-meta-item">
+      <div class="label">Nível</div>
+      <div class="value">Prático</div>
+    </div>
+    <div class="intro-meta-item">
+      <div class="label">Formato</div>
+      <div class="value">Simulação interativa</div>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="goTo('case')">Começar treinamento →</button>
+</div>
+
+<!-- ============================= CASE SCREEN ============================= -->
+<div id="screen-case" class="screen">
+  <h2 style="font-size:28px;font-weight:800;margin-bottom:8px;text-align:center;">Escolha o Caso de Uso</h2>
+  <p style="font-size:14px;color:var(--text2);font-family:var(--font-mono);text-align:center;">Selecione o incidente que vai responder. Cada um tem contexto e dados distintos.</p>
+
+  <div class="case-grid" id="case-grid"></div>
+
+  <div style="display:flex;gap:12px;">
+    <button class="btn-secondary" onclick="goTo('intro')">← Voltar</button>
+    <button class="btn-primary" id="btn-start-builder" onclick="startBuilder()" disabled>Montar Playbook →</button>
+  </div>
+</div>
+
+<!-- ============================= BUILDER SCREEN ============================= -->
+<div id="screen-builder" class="screen">
+  <div class="builder-header">
+    <div class="builder-brand"><span>Mariana BS</span> · SOAR Lab</div>
+    <div class="builder-case-tag">Caso: <b id="header-case-name">—</b></div>
+    <div class="builder-actions">
+      <button class="btn-secondary" onclick="returnHome(false)" title="Voltar para o início">Início</button>
+      <button class="btn-secondary" onclick="goTo('case')" title="Trocar caso de uso">Trocar caso</button>
+      <button class="btn-secondary" onclick="saveProgress()" title="Salvar">Salvar</button>
+      <button class="btn-secondary" onclick="loadProgress()" title="Carregar">Carregar</button>
+      <button class="btn-secondary" onclick="exportJSON()" title="Exportar JSON">Export JSON</button>
+      <button class="btn-danger" onclick="clearWorkflow()">Limpar</button>
+      <button class="btn-primary" id="btn-exec" onclick="tryExecute()">▶ Executar Playbook</button>
+    </div>
+  </div>
+
+  <div class="builder-body">
+    <!-- LEFT -->
+    <div class="panel-left">
+      <div class="panel-section-title">Dados do Incidente</div>
+      <div class="incident-info" id="incident-info"></div>
+
+      <div class="panel-section-title">Blocos Disponíveis</div>
+      <div class="block-palette" id="block-palette"></div>
+    </div>
+
+    <!-- CANVAS -->
+    <div class="canvas-area" id="canvas-area">
+      <div class="canvas-empty" id="canvas-empty">
+        <h3>Canvas vazio</h3>
+        <p>Clique nos blocos ao lado<br>para montar seu playbook.</p>
+      </div>
+      <div class="workflow-chain" id="workflow-chain"></div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="panel-right">
+      <div class="score-display">
+        <div class="score-ring" id="score-ring">
+          <div class="score-num" id="score-num">0%</div>
+        </div>
+        <div class="score-label">Score do Playbook</div>
+      </div>
+
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-label">
+          <span>Progresso</span>
+          <span id="progress-pct">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="panel-section-title">Checklist Obrigatório</div>
+      <div class="checklist" id="checklist"></div>
+
+      <div class="panel-section-title">Guia do Bloco</div>
+      <div id="guide-panel">
+        <div class="guide-card">
+          <p style="font-size:12px;color:var(--text3);font-family:var(--font-mono);">← Clique em um bloco no canvas para ver o guia técnico.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================= EXECUTION SCREEN ============================= -->
+<div id="screen-execution" class="screen">
+  <div class="exec-header">
+    <h2 class="exec-title">Executando Playbook</h2>
+    <p class="exec-subtitle" id="exec-case-label">Caso: —</p>
+  </div>
+
+  <div class="exec-layout">
+    <div class="exec-log-panel">
+      <div class="exec-log-header">
+        <div class="exec-log-dot" id="exec-dot"></div>
+        Log de Execução em Tempo Real
+      </div>
+      <div class="exec-log-body" id="exec-log-body"></div>
+    </div>
+
+    <div class="exec-right">
+      <div class="exec-metrics">
+        <h4>Métricas de Execução</h4>
+        <div class="metric-item"><span class="metric-label">Tempo total</span><span class="metric-value" id="m-time">—</span></div>
+        <div class="metric-item"><span class="metric-label">Ações automatizadas</span><span class="metric-value" id="m-actions">—</span></div>
+        <div class="metric-item"><span class="metric-label">Integrações usadas</span><span class="metric-value" id="m-integrations">—</span></div>
+        <div class="metric-item"><span class="metric-label">Escalonamento</span><span class="metric-value" id="m-escalate">—</span></div>
+        <div class="metric-item"><span class="metric-label">Esforço manual evitado</span><span class="metric-value green" id="m-saved">—</span></div>
+      </div>
+
+      <div class="exec-verdict">
+        <h4>Resultado do Incidente</h4>
+        <div class="verdict-status" id="verdict-status" style="background:var(--surface2);color:var(--text3);">Aguardando...</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6;" id="verdict-text"></div>
+      </div>
+
+      <div class="exec-soar-note">
+        <p>SOAR reduz trabalho repetitivo, mas depende de bons alertas, boas integrações e playbooks bem definidos. Sem isso, você tem automação de caos.</p>
+        <span class="acid">O playbook é tão bom quanto quem o escreveu. Geralmente, foi escrito às 23h antes de uma auditoria.</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <button class="btn-secondary" onclick="goTo('builder')">← Editar Playbook</button>
+    <button class="btn-secondary" onclick="returnHome(false)">Início</button>
+    <button class="btn-primary" id="btn-goto-result" onclick="openCertificateScreen()" style="display:none;">Emitir Certificado →</button>
+  </div>
+</div>
+
+<!-- ============================= RESULT SCREEN ============================= -->
+<div id="screen-result" class="screen">
+  <div class="result-title">Playbook Concluído</div>
+  <p class="result-subtitle">Emita seu certificado de conclusão do treinamento.</p>
+
+  <div class="cert-form">
+    <h3>Gerar Certificado</h3>
+    <div class="form-group">
+      <label>Seu nome completo</label>
+      <input type="text" id="cert-name" placeholder="Ex: Ana Oliveira" oninput="updateCertPreview()">
+    </div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:16px;">
+      O certificado atesta a conclusão do treinamento <strong>"Workflow SOAR na Prática"</strong> com carga horária de 1 hora, abordando ingestão de alertas, enriquecimento automático, decisões por playbook, resposta automatizada, notificação, escalonamento, documentação e métricas operacionais.
+    </div>
+    <button class="btn-primary" style="width:100%;" onclick="generateCert()">Gerar certificado</button>
+  </div>
+
+  <canvas id="cert-canvas" width="900" height="636"></canvas>
+
+  <div id="cert-preview-wrap" style="display:none;max-width:700px;width:100%;margin-bottom:24px;">
+    <img id="cert-img" style="width:100%;border-radius:12px;border:1px solid var(--border);" alt="Certificado">
+  </div>
+
+  <div class="result-actions" id="result-actions" style="display:none;">
+    <button class="btn-primary" onclick="downloadCert()">Baixar certificado PNG</button>
+    <button class="btn-secondary" onclick="exportJSON()">Exportar relatório JSON</button>
+    <button class="btn-secondary" onclick="restartAll()">Novo treinamento</button>
+  </div>
+
+  <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <button class="btn-secondary" onclick="goTo('execution')">← Voltar aos resultados</button>
+    <button class="btn-secondary" onclick="goTo('builder')">Editar playbook</button>
+    <button class="btn-secondary" onclick="returnHome(false)">Início</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ============================= JAVASCRIPT ============================= -->
+<script>
+// ===== STATE =====
+const state = {
+  screen: 'intro',
+  selectedCase: null,
+  workflow: [], // array of block IDs
+  executionDone: false,
+  certName: '',
+  score: 0,
+  execMetrics: {}
+};
+
+// ===== CASES =====
+const CASES = [
+  {
+    id:'phishing',
+    title:'Phishing com Anexo Suspeito',
+    severity:'high',
+    sevLabel:'Alto',
+    sevClass:'sev-high',
+    desc:'Usuário reportou e-mail com anexo .docm. Link encurtado em corpo do e-mail. Comportamento suspeito de macro detectado.',
+    acidNote:'Spoiler: o usuário já clicou. Sempre clicam.',
+    incident:{
+      'ID do Alerta':'INC-2026-00421',
+      'Severidade':'Alto',
+      'Fonte':'Gateway de E-mail + EDR',
+      'Usuário':'jsilva@corp.local',
+      'Host':'WS-JSILVA-001',
+      'Hash do Anexo':'a3f1b9c2d4e5...7f8a',
+      'IP Origem':'185.234.219.44',
+      'Domínio C2':'update-secure-cdn[.]net',
+      'Hora do Alerta':'2026-04-26 14:32:18 UTC'
+    },
+    sevColor:'high',
+    malicious:true,
+    escalate:false
+  },
+  {
+    id:'powershell',
+    title:'Execução Suspeita de PowerShell',
+    severity:'critical',
+    sevLabel:'Crítico',
+    sevClass:'sev-critical',
+    desc:'EDR detectou execução de PowerShell com parâmetros codificados em Base64 e download de payload via IWR. Processo pai: winword.exe.',
+    acidNote:'Office gerando processo PowerShell. Clássico.',
+    incident:{
+      'ID do Alerta':'INC-2026-00445',
+      'Severidade':'Crítico',
+      'Fonte':'EDR',
+      'Usuário':'mramos@corp.local',
+      'Host':'WS-MRAMOS-003',
+      'Processo':'powershell.exe (pai: WINWORD.EXE)',
+      'Linha de Comando':'powershell -enc JABjAGw...== (truncado)',
+      'IP de Download':'94.130.22.171',
+      'Hora do Alerta':'2026-04-26 09:14:55 UTC'
+    },
+    sevColor:'critical',
+    malicious:true,
+    escalate:true
+  },
+  {
+    id:'mfa',
+    title:'Login Anômalo com MFA Fatigue',
+    severity:'high',
+    sevLabel:'Alto',
+    sevClass:'sev-high',
+    desc:'47 tentativas de push MFA em 6 minutos para conta privilegiada. Login bem-sucedido após aceitação. IP de origem: Rússia.',
+    acidNote:'Push Fatigue 2026: quando a persistência do atacante supera a paciência do usuário.',
+    incident:{
+      'ID do Alerta':'INC-2026-00388',
+      'Severidade':'Alto',
+      'Fonte':'IdP / MFA Provider',
+      'Usuário':'admin.santos@corp.local',
+      'Perfil':'Conta Privilegiada (DA)',
+      'IP de Login':'95.181.44.33 (RU)',
+      'Pushes Enviados':'47 em 6 minutos',
+      'Login Bem-Sucedido':'Sim (14:01:22 UTC)',
+      'Hora do Alerta':'2026-04-26 14:01:40 UTC'
+    },
+    sevColor:'high',
+    malicious:true,
+    escalate:true
+  },
+  {
+    id:'ip-malicioso',
+    title:'Comunicação com IP Malicioso',
+    severity:'medium',
+    sevLabel:'Médio',
+    sevClass:'sev-medium',
+    desc:'Firewall detectou conexão de saída persistente de host interno para IP categorizado como C2 em múltiplas listas de threat intel.',
+    acidNote:'Provavelmente ransomware fazendo check-in. Ou uma TV da sala de reunião. Difícil saber.',
+    incident:{
+      'ID do Alerta':'INC-2026-00402',
+      'Severidade':'Médio',
+      'Fonte':'NGFW + SIEM',
+      'IP Interno':'10.0.12.88 (SRV-PRINT-02)',
+      'IP Externo':'45.142.213.168',
+      'Protocolo':'TCP/443 (beaconing a cada 60s)',
+      'Listas de Threat Intel':'feed de abuso de IP, ET Pro, feed de ruído de internet',
+      'Bytes Transferidos':'2.1 MB',
+      'Hora do Alerta':'2026-04-26 11:55:02 UTC'
+    },
+    sevColor:'medium',
+    malicious:true,
+    escalate:false
+  },
+  {
+    id:'malware',
+    title:'Malware Detectado no Endpoint',
+    severity:'critical',
+    sevLabel:'Crítico',
+    sevClass:'sev-critical',
+    desc:'EDR detectou e bloqueou infostealer. Hash confirmado em múltiplos feeds. Arquivo em diretório temporário do usuário. Credenciais possivelmente comprometidas.',
+    acidNote:'O EDR bloqueou. O usuário vai perguntar "por que meu arquivo abriu errado?". Essa é a vida.',
+    incident:{
+      'ID do Alerta':'INC-2026-00461',
+      'Severidade':'Crítico',
+      'Fonte':'EDR',
+      'Usuário':'ftavares@corp.local',
+      'Host':'LAPTOP-FTAVARES',
+      'Malware':'Vidar Stealer (variante B)',
+      'Hash':'d41d8cd98f00b204e9800998ecf8427e',
+      'Caminho':'C:\\Users\\ftavares\\AppData\\Local\\Temp\\upd.exe',
+      'Status EDR':'Bloqueado e em Quarentena',
+      'Hora do Alerta':'2026-04-26 16:22:11 UTC'
+    },
+    sevColor:'critical',
+    malicious:true,
+    escalate:true
+  }
+];
+
+// ===== BLOCKS =====
+const BLOCKS = [
+  {
+    id:'trigger', label:'Trigger / Alerta Recebido',
+    color:'#00d4ff', icon:'⚡', category:'trigger',
+    guide:{
+      what:'Ponto de entrada do playbook. Recebe o alerta do SIEM, EDR ou outra fonte e instancia o incidente com seus metadados.',
+      integration:'SIEM (via webhook ou polling), plataforma de alerta nativa.',
+      input:'Payload de alerta bruto (JSON com campos como ID, severidade, timestamp, host, usuário).',
+      output:'Objeto de incidente estruturado com todos os campos normalizados para uso nas próximas etapas.',
+      risk:'Se o schema do alerta mudar na fonte, o parsing quebra silenciosamente. Você descobre na auditoria.',
+      example:'SIEM dispara webhook para SOAR com alerta de PowerShell suspeito. Playbook instancia incidente INC-2026-00445.',
+      acid:'Lindo quando funciona. Quando o certificado TLS do webhook vence e ninguém percebe, você descobre em produção.'
+    }
+  },
+  {
+    id:'coleta', label:'Coleta de Detalhes do Incidente',
+    color:'#6ee7f7', icon:'📋', category:'collect',
+    guide:{
+      what:'Extrai e normaliza todos os campos relevantes do alerta: usuário, host, IP, hash, timestamp. Prepara o contexto para as etapas subsequentes.',
+      integration:'Conector nativo da fonte de alerta, parser de schema.',
+      input:'Alerta bruto recebido no trigger.',
+      output:'Campos estruturados: user, hostname, ip_src, ip_dst, hash, timestamp, severity.',
+      risk:'Campos ausentes ou nulos geram erros em cascata. Valide sempre a presença de campos críticos antes de prosseguir.',
+      example:'Extrai do alerta: host=WS-JSILVA-001, user=jsilva, hash=a3f1b9c2..., ip_origem=185.234.219.44.',
+      acid:'Parece trivial. É o passo mais importante. E o mais ignorado na documentação do playbook.'
+    }
+  },
+  {
+    id:'enriquecimento', label:'Enriquecimento Automático',
+    color:'#a78bfa', icon:'🔬', category:'enrich',
+    guide:{
+      what:'Agrega contexto adicional automaticamente: geolocalização do IP, informações WHOIS, histórico de alertas do usuário, reputação de domínio.',
+      integration:'API de reputação, consulta WHOIS/RDAP, enriquecimento de IP e base histórica do SIEM.',
+      input:'IP, domínio, hash, usuário extraídos na etapa anterior.',
+      output:'Contexto enriquecido: país do IP, ASN, proprietário do domínio, pontuação de reputação, histórico de alertas.',
+      risk:'APIs externas têm rate limit e quotas. Em incidentes massivos, você pode esgotar a cota e ficar cego.',
+      example:'IP 185.234.219.44 → Geolocalização: Bulgária, ASN: AS209854 (hosting anônimo), histórico: 12 denúncias em 30 dias.',
+      acid:'Enriquecimento não é triagem. É contexto. Ainda precisa de alguém para interpretar.'
+    }
+  },
+  {
+    id:'threat-intel', label:'Consulta de Threat Intelligence',
+    color:'#f472b6', icon:'🕵️', category:'enrich',
+    guide:{
+      what:'Consulta plataformas de Threat Intelligence para verificar se IOCs (IPs, hashes, domínios) estão associados a campanhas conhecidas.',
+      integration:'Plataforma de CTI, feeds STIX/TAXII e repositório interno de inteligência.',
+      input:'IOCs extraídos: IP, hash, domínio, URL.',
+      output:'Hits em campanhas conhecidas, atores de ameaça, TTPs (MITRE ATT&CK), data de primeiro/último reporte.',
+      risk:'Feeds desatualizados geram falsos negativos. Um IOC não presente no feed não é automaticamente limpo.',
+      example:'Hash a3f1b9c2 → Presente no plataforma de CTI: associado à campanha Emotet Q1-2026, 47 relatos globais.',
+      acid:'Threat intel é o LinkedIn da segurança: todo mundo tem, poucos mantêm atualizado.'
+    }
+  },
+  {
+    id:'reputacao', label:'Reputação de IP / Domínio / Hash',
+    color:'#fb923c', icon:'🔍', category:'enrich',
+    guide:{
+      what:'Verifica reputação de IOCs em múltiplos feeds públicos e privados, retornando pontuação de risco agregada.',
+      integration:'APIs de reputação de IP/domínio/hash, feeds públicos e privados de CTI.',
+      input:'IP, domínio ou hash.',
+      output:'Score de reputação (0-100), número de engines que detectaram, categorias (malware, phishing, c2, spam).',
+      risk:'Falsos positivos existem. Um IP legítimo de CDN pode estar em lista negra por abuso de terceiros.',
+      example:'IP 185.234.219.44 → feed de abuso de IP: 98/100 confidence abuse, 234 reports, last seen 2h ago.',
+      acid:'Um único hit de reputação não confirma tudo. Zero hits também não absolve ninguém.'
+    }
+  },
+  {
+    id:'contexto-usuario', label:'Contexto de Usuário no Diretório',
+    color:'#34d399', icon:'👤', category:'enrich',
+    guide:{
+      what:'Consulta diretório corporativo (AD/LDAP/IdP) para obter contexto do usuário: grupos, privilégios, departamento, último login, histórico.',
+      integration:'Diretório corporativo via LDAP/API, IdP corporativo e provedor de MFA.',
+      input:'Username ou e-mail do usuário do incidente.',
+      output:'Grupos de segurança, privilégios (DA, admin local), departamento, status da conta, último login, localização usual.',
+      risk:'Permissões no diretório podem estar defasadas. Usuário "regular" pode ter privilégios de DA por "herança histórica".',
+      example:'jsilva@corp.local → Departamento: Financeiro, Grupos: Domain Users, Pode acessar: FinanceShare, GoldDocuments.',
+      acid:'É incrível a quantidade de contas de ex-funcionários ainda ativas com acesso a sistemas críticos. Incrível e aterrorizante.'
+    }
+  },
+  {
+    id:'verificacao-ativo', label:'Verificação de Ativo / Endpoint',
+    color:'#60a5fa', icon:'💻', category:'enrich',
+    guide:{
+      what:'Consulta a plataforma de gestão de ativos e EDR para obter contexto do endpoint: OS, patches, software instalado, conexões ativas.',
+      integration:'CMDB, EDR (via API), plataforma de gestão de vulnerabilidades.',
+      input:'Hostname ou IP interno do ativo.',
+      output:'OS, versão, patches aplicados, software instalado, processos ativos, conexões de rede, última vez visto.',
+      risk:'CMDB desatualizado é fonte de desinformação. "Servidor legacy" pode ser o core de pagamentos.',
+      example:'WS-JSILVA-001 → Windows 11 22H2, último patch 2025-12, EDR versão 23.1.0, 3 conexões externas ativas.',
+      acid:'Se o CMDB tiver 100% de acurácia, você trabalha em uma empresa fictícia ou num datacenter governado por deuses.'
+    }
+  },
+  {
+    id:'decisao', label:'Decisão Condicional: Ameaça Maliciosa?',
+    color:'#fbbf24', icon:'⚖️', category:'decision',
+    guide:{
+      what:'Nó de decisão que avalia os dados coletados e enriquecidos e determina se a ameaça é confirmada, suspeita ou falso positivo.',
+      integration:'Lógica interna do SOAR (condicionais, thresholds configuráveis).',
+      input:'Score de reputação, hits de TI, contexto do usuário, severidade do alerta.',
+      output:'Booleano ou score de confiança: MALICIOSO / SUSPEITO / FALSO_POSITIVO.',
+      risk:'Thresholds mal calibrados geram respostas automáticas em falsos positivos — o que pode derrubar sistemas legítimos.',
+      example:'Score reputação ≥ 85 AND TI hit = true → Decisão: MALICIOSO. Score < 40 AND sem histórico → FALSO_POSITIVO.',
+      acid:'A decisão é tão boa quanto os dados que a alimentam. Dados ruins + decisão automática = problema certo com velocidade errada.'
+    }
+  },
+  {
+    id:'sim', label:'Caminho: SIM (Ameaça Confirmada)',
+    color:'#f87171', icon:'⚠️', category:'path',
+    guide:{
+      what:'Ramo de execução para quando a ameaça é confirmada. Aciona todas as ações de contenção e resposta.',
+      integration:'Não há integração própria. É um nó de roteamento lógico.',
+      input:'Decisão = MALICIOSO do nó anterior.',
+      output:'Fluxo direcionado para ações de contenção.',
+      risk:'Se o nó de decisão estiver mal calibrado, todas as ações abaixo serão executadas em falsos positivos.',
+      example:'Usuário cai no caminho SIM → Isolar endpoint, bloquear IP, resetar senha, abrir ticket P1.',
+      acid:'O caminho do SIM é onde as coisas ficam interessantes. E onde os SLAs começam a correr.'
+    }
+  },
+  {
+    id:'nao', label:'Caminho: NÃO (Falso Positivo)',
+    color:'#4ade80', icon:'✓', category:'path',
+    guide:{
+      what:'Ramo de execução para quando o alerta é classificado como falso positivo. Documentação, fechamento e ajuste de tuning.',
+      integration:'SIEM (feedback de tuning), sistema de tickets.',
+      input:'Decisão = FALSO_POSITIVO do nó anterior.',
+      output:'Ticket fechado como FP, documentação criada, caso de tuning registrado.',
+      risk:'Classificar ameaças reais como FP por excesso de confiança nos dados enriquecidos. Valide antes de fechar.',
+      example:'Alerta de IP com score 12/100, sem histórico, usuário em viagem internacional registrada → FP documentado.',
+      acid:'O caminho do NÃO gera relatório de tuning que ninguém vai ler mas que vai salvar vidas em três meses.'
+    }
+  },
+  {
+    id:'isolar', label:'Isolar Endpoint',
+    color:'#f87171', icon:'🔒', category:'response',
+    guide:{
+      what:'Aciona o isolamento de rede do endpoint via EDR, cortando comunicação com a rede corporativa exceto com o console do EDR.',
+      integration:'EDR (API da plataforma EDR/XDR corporativa).',
+      input:'Hostname ou agent ID do endpoint.',
+      output:'Confirmação de isolamento, timestamp, ID da ação no EDR.',
+      risk:'Isolamento em servidor crítico sem validação pode derrubar serviços produtivos. Valide se é workstation antes.',
+      example:'WS-JSILVA-001 → API EDR/XDR: POST /devices/isolate → Status: ISOLATED às 14:33:07 UTC.',
+      acid:'O endpoint está isolado. O usuário vai ligar para o help desk achando que é problema de Wi-Fi.'
+    }
+  },
+  {
+    id:'bloquear-ip', label:'Bloquear IP / Domínio',
+    color:'#f87171', icon:'🚫', category:'response',
+    guide:{
+      what:'Adiciona IP ou domínio malicioso à blacklist do firewall, proxy ou DNS interno, bloqueando comunicação de toda a rede.',
+      integration:'API de NGFW, proxy corporativo, SWG ou DNS sinkhole.',
+      input:'IP ou FQDN a ser bloqueado.',
+      output:'Confirmação de regra criada no firewall/proxy, ID da regra, timestamp.',
+      risk:'Bloquear IPs de CDN compartilhado pode derrubar acessos legítimos de centenas de usuários.',
+      example:'IP 185.234.219.44 → Firewall API: nova regra DENY FROM/TO 185.234.219.44 → Aplicada em 2.3s.',
+      acid:'Bloqueio global de IP é cirurgia com marreta. Efetivo. Às vezes colateral.'
+    }
+  },
+  {
+    id:'remover-email', label:'Remover E-mail Malicioso',
+    color:'#fb923c', icon:'📧', category:'response',
+    guide:{
+      what:'Remove automaticamente o e-mail malicioso de todas as caixas de entrada onde foi entregue, usando APIs da plataforma de e-mail.',
+      integration:'API administrativa da plataforma de e-mail corporativo.',
+      input:'Message ID, remetente, hash do anexo, assunto.',
+      output:'Lista de caixas de onde foi removido, contagem, confirmação.',
+      risk:'Mensagem já pode ter sido encaminhada ou salva localmente. Remoção da caixa não garante que o link não foi clicado.',
+      example:'Message-ID: &lt;a3b2c1@mail.evil.com&gt; → Removido de 3 caixas de entrada (jsilva, marques, dtavares).',
+      acid:'Remover e-mail é fechar a caixa de areia depois que a criança já saiu. Necessário. Incompleto.'
+    }
+  },
+  {
+    id:'desabilitar-usuario', label:'Desabilitar Usuário / Forçar Reset',
+    color:'#f87171', icon:'🔐', category:'response',
+    guide:{
+      what:'Desabilita a conta do usuário no diretório ou força reset de senha com revogação de sessões ativas.',
+      integration:'Diretório corporativo via PowerShell/LDAP/API e provedor de identidade.',
+      input:'Username, ação desejada (desabilitar ou forçar reset).',
+      output:'Confirmação de desabilitação/reset, sessões revogadas, timestamp.',
+      risk:'Desabilitar conta de usuário crítico (CEO, serviço) sem validação pode gerar impacto de negócio severo.',
+      example:'admin.santos@corp.local → Conta desabilitada, 3 sessões OAuth revogadas, senha expirada às 14:01:55 UTC.',
+      acid:'Sempre valide se não é uma conta de serviço antes de desabilitar. Você não vai querer aprender isso ao vivo.'
+    }
+  },
+  {
+    id:'ticket', label:'Abrir Ticket de Incidente',
+    color:'#60a5fa', icon:'🎫', category:'document',
+    guide:{
+      what:'Cria automaticamente um ticket no sistema de gestão de incidentes com todos os dados coletados, classificação e ações executadas.',
+      integration:'ITSM, case management, sistema de tickets ou plataforma interna de incidentes.',
+      input:'Todos os dados do incidente coletados até o momento.',
+      output:'ID do ticket criado, URL, SLA iniciado, assignee.',
+      risk:'Template de ticket mal configurado gera tickets incompletos que chegam no analista sem contexto útil.',
+      example:'Ticket INC-2026-00421 criado no ITSM → Prioridade P2, SLA: 4h, Assignee: SOC-N1-Team.',
+      acid:'O ticket vai ser atualizado manualmente por um analista de qualquer jeito. Mas pelo menos o SOAR abriu.'
+    }
+  },
+  {
+    id:'notificar', label:'Notificar Canal de SOC',
+    color:'#a78bfa', icon:'📢', category:'notify',
+    guide:{
+      what:'Envia notificação estruturada para o canal de comunicação do SOC com resumo do incidente, ações executadas e próximos passos.',
+      integration:'Webhook de canal colaborativo, ferramenta de comunicação corporativa ou solução de on-call.',
+      input:'Resumo do incidente, ações realizadas, ID do ticket.',
+      output:'Confirmação de mensagem enviada, timestamp, ID da notificação.',
+      risk:'Notificações mal formatadas ou em excesso são ignoradas. Se tudo é urgente, nada é urgente.',
+      example:'Canal #soc-alerts: "🚨 INC-2026-00421 | Phishing confirmado | Endpoint WS-JSILVA-001 isolado | Ticket: INC-421"',
+      acid:'Se o canal de SOC recebe 200 notificações por dia, essa vai virar ruído em 3 semanas. Calibre o threshold.'
+    }
+  },
+  {
+    id:'escalar', label:'Escalar para N2 / N3',
+    color:'#f472b6', icon:'⬆️', category:'notify',
+    guide:{
+      what:'Escala o incidente para analistas de nível superior (N2/N3) quando critérios de severidade ou complexidade são atingidos.',
+      integration:'Sistema de tickets, ferramenta de on-call e canal de comunicação corporativo.',
+      input:'Critérios de escalonamento: severidade crítica, dados sensíveis, ativo crítico, ausência de playbook aplicável.',
+      output:'Ticket reatribuído, analista N2/N3 notificado, timestamp de escalonamento.',
+      risk:'Escalonamento automático excessivo sobrecarrega N2/N3 com casos que N1 poderia resolver.',
+      example:'Credenciais de DA comprometidas → Escalonamento automático para N2 às 14:02:10 UTC.',
+      acid:'Escalonamento não é sinal de fraqueza. É sinal de que o N1 leu a documentação de escalonamento. Raro, mas acontece.'
+    }
+  },
+  {
+    id:'relatorio', label:'Gerar Relatório de Incidente',
+    color:'#34d399', icon:'📄', category:'document',
+    guide:{
+      what:'Compila automaticamente todos os dados, ações, timelines e evidências do incidente em um relatório estruturado.',
+      integration:'Template engine do SOAR, repositório de documentos (repositório interno de documentos).',
+      input:'Todos os dados coletados, ações executadas, logs, timestamps, decisões tomadas.',
+      output:'Relatório em PDF ou Markdown com timeline, IOCs, ações, evidências, recomendações.',
+      risk:'Relatório gerado automaticamente pode ter campos vazios ou mal interpretados. Revisão humana é necessária.',
+      example:'Relatório INC-2026-00421-RPT.pdf gerado: 8 páginas, timeline completa, 3 IOCs, 5 ações documentadas.',
+      acid:'O relatório perfeito gerado automaticamente que ninguém vai ler até a próxima reunião de governança.'
+    }
+  },
+  {
+    id:'fechar', label:'Fechar Incidente',
+    color:'#94a3b8', icon:'✅', category:'close',
+    guide:{
+      what:'Marca o incidente como resolvido no sistema de tickets, documenta a classificação final e inicia o ciclo de lições aprendidas.',
+      integration:'Sistema de tickets, SIEM (feedback de fechamento).',
+      input:'Classificação final (TP/FP), ações tomadas, confirmação de contenção.',
+      output:'Ticket fechado, status atualizado, tempo de resolução registrado.',
+      risk:'Fechar incidente sem confirmar contenção completa é um erro clássico que volta a assombrar em 72 horas.',
+      example:'INC-2026-00421 → Status: RESOLVED, Classificação: True Positive, MTTD: 8min, MTTR: 23min.',
+      acid:'Incidente "fechado" não significa "resolvido". Significa que alguém clicou em fechar.'
+    }
+  },
+  {
+    id:'metricas', label:'Atualizar Métricas Operacionais',
+    color:'#fbbf24', icon:'📊', category:'close',
+    guide:{
+      what:'Registra métricas operacionais do incidente no dashboard: MTTD, MTTR, tipo, severidade, ações automatizadas x manuais.',
+      integration:'Dashboard do SOAR, SIEM (correlação histórica), sistema de reporting.',
+      input:'Timestamps de todas as etapas, classificação, ações executadas.',
+      output:'Atualização dos KPIs: MTTD, MTTR, taxa de automação, volume por tipo de incidente.',
+      risk:'Métricas não confiáveis levam a decisões estratégicas erradas. Garbage metrics, garbage strategy.',
+      example:'Dashboard atualizado: MTTD=8min, MTTR=23min, 87% das ações automatizadas, 0 intervenções manuais N1.',
+      acid:'A métrica que o CISO vai apresentar na board foi gerada por um SOAR que ninguém revisou em 6 meses.'
+    }
+  }
+  ,
+  {
+    id:'distrator-ping', label:'Rodar ping 8.8.8.8',
+    color:'#fbbf24', icon:'🏓', category:'distractor', invalid:true,
+    guide:{
+      what:'Ação genérica de conectividade. Pode ser útil em troubleshooting de rede, mas não responde a um incidente SOAR.',
+      integration:'Nenhuma integração de resposta a incidente.',
+      input:'Endereço IP aleatório.',
+      output:'Latência de rede, quando muito.',
+      risk:'Confundir teste de conectividade com investigação de segurança. O atacante não vai embora porque o ping respondeu.',
+      example:'ping 8.8.8.8 → 12ms. Incidente continua exatamente igual.',
+      acid:'O ping responde. A maturidade do processo, nem sempre.'
+    }
+  },
+  {
+    id:'distrator-reuniao', label:'Abrir reunião emergencial sem dono',
+    color:'#fbbf24', icon:'📅', category:'distractor', invalid:true,
+    guide:{
+      what:'Reunião sem owner, sem decisão e sem ação automatizada. Isso é governança performática, não SOAR.',
+      integration:'Calendário corporativo, infelizmente.',
+      input:'Pânico, prints soltos e frases como “alguém viu isso?”.',
+      output:'Mais ruído operacional e menos MTTR.',
+      risk:'Atrasar contenção real enquanto todo mundo discute se o alerta é “crítico mesmo”.',
+      example:'Convocar 18 pessoas antes de isolar um endpoint claramente comprometido.',
+      acid:'Reunião não é playbook. É latência humana com convite.'
+    }
+  },
+  {
+    id:'distrator-wallpaper', label:'Trocar papel de parede do endpoint',
+    color:'#fbbf24', icon:'🖼️', category:'distractor', invalid:true,
+    guide:{
+      what:'Não é contenção, não é erradicação, não é coleta de evidência. É só estética em uma máquina possivelmente comprometida.',
+      integration:'Nenhuma integração legítima de resposta.',
+      input:'Uma imagem bonita e uma péssima priorização.',
+      output:'Endpoint ainda comprometido, mas com visual novo.',
+      risk:'Perder tempo com ação sem efeito sobre risco, impacto ou evidência.',
+      example:'Alterar wallpaper de WS-JSILVA-001 enquanto o malware ainda mantém conexão C2.',
+      acid:'Bonito para print. Inútil para incidente.'
+    }
+  },
+  {
+    id:'distrator-formatar', label:'Formatar máquina antes de coletar evidência',
+    color:'#fbbf24', icon:'🧨', category:'distractor', invalid:true,
+    guide:{
+      what:'Ação destrutiva que pode apagar evidências antes da triagem, preservação e documentação mínima.',
+      integration:'Nenhuma. Isso deve ser decisão controlada, não automação cega.',
+      input:'Impulso, pressa e ausência de processo forense.',
+      output:'Evidência perdida e relatório fraco.',
+      risk:'Destruir artefatos necessários para investigação, cadeia de custódia e lições aprendidas.',
+      example:'Reinstalar host crítico antes de coletar hostname, usuário, hash, conexões, processos e timeline.',
+      acid:'Nada diz “resposta madura” como apagar a cena do crime.'
+    }
+  }
+
+];
+
+// Mandatory sequence (by category)
+const MANDATORY_SEQUENCE = ['trigger','collect','enrich','decision','response','notify','document','close'];
+const CATEGORY_MAP = {
+  trigger:['trigger'], collect:['collect'], enrich:['enrich','threat-intel'],
+  decision:['decision'], response:['response'], notify:['notify'],
+  document:['document'], close:['close']
+};
+
+// ===== NAVIGATION =====
+function goTo(s) {
+  const target = document.getElementById('screen-'+s);
+  if (!target) return;
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  target.classList.add('active');
+  state.screen = s;
+  window.scrollTo(0,0);
+  if (s === 'result') prepareCertificateScreen();
+  if (s === 'execution' && state.executionDone) {
+    const btn = document.getElementById('btn-goto-result');
+    if (btn) btn.style.display = 'inline-block';
+  }
+}
+
+function returnHome(reset=false) {
+  if (reset) restartAll();
+  else goTo('intro');
+}
+
+function openCertificateScreen() {
+  if (!state.executionDone) {
+    showToast('Execute o playbook corretamente antes de emitir o certificado.', 'warn');
+    return;
+  }
+  goTo('result');
+}
+
+function prepareCertificateScreen() {
+  const input = document.getElementById('cert-name');
+  if (input && state.certName) input.value = state.certName;
+  const preview = document.getElementById('cert-preview-wrap');
+  const actions = document.getElementById('result-actions');
+  if (preview) preview.style.display = 'none';
+  if (actions) actions.style.display = 'none';
+  if (!state.executionDone) showToast('Certificado liberado após executar o playbook corretamente.', 'warn');
+}
+
+// ===== CASE RENDERING =====
+function renderCases() {
+  const grid = document.getElementById('case-grid');
+  // Shuffle cases
+  const shuffled = [...CASES].sort(() => Math.random()-0.5);
+  grid.innerHTML = shuffled.map(c => `
+    <div class="case-card" data-case-id="${c.id}" id="casecard-${c.id}" role="button" tabindex="0">
+      <div class="case-severity ${c.sevClass}">${c.sevLabel}</div>
+      <h3>${c.title}</h3>
+      <p>${c.desc}</p>
+      <div class="acid-note">${c.acidNote}</div>
+    </div>
+  `).join('');
+}
+
+function selectCase(id) {
+  const c = CASES.find(x => x.id === id);
+  if (!c) {
+    showToast('Caso de uso inválido. Recarregue a página.', 'err');
+    return;
+  }
+  state.selectedCase = id;
+  document.querySelectorAll('.case-card').forEach(el => el.classList.remove('selected'));
+  const card = document.getElementById('casecard-' + id);
+  if (card) card.classList.add('selected');
+  const btn = document.getElementById('btn-start-builder');
+  if (btn) btn.disabled = false;
+  showToast('Caso selecionado: ' + c.title, 'ok');
+}
+
+// ===== BUILDER =====
+function startBuilder() {
+  if (!state.selectedCase) return;
+  const c = CASES.find(x=>x.id===state.selectedCase);
+  document.getElementById('header-case-name').textContent = c.title;
+  document.getElementById('exec-case-label').textContent = 'Caso: '+c.title;
+  renderIncidentInfo(c);
+  renderPalette();
+  renderWorkflow();
+  updateChecklist();
+  updateScore();
+  goTo('builder');
+}
+
+function renderIncidentInfo(c) {
+  const container = document.getElementById('incident-info');
+  container.innerHTML = Object.entries(c.incident).map(([k,v]) => `
+    <div class="incident-field">
+      <div class="field-label">${k}</div>
+      <div class="field-value ${k==='Severidade'?c.sevColor:''}">${v}</div>
+    </div>
+  `).join('');
+}
+
+function renderPalette() {
+  const container = document.getElementById('block-palette');
+  // Shuffle blocks
+  const shuffled = [...BLOCKS].sort(() => Math.random()-0.5);
+  container.innerHTML = shuffled.map(b => `
+    <div class="palette-block ${state.workflow.includes(b.id)?'added':''} ${b.invalid?'distractor':''}" 
+         id="pal-${b.id}" data-block-id="${b.id}" role="button" tabindex="0">
+      <div class="block-dot" style="background:${b.color}"></div>
+      ${b.label}
+    </div>
+  `).join('');
+}
+
+function addBlock(id) {
+  if (state.workflow.includes(id)) { showToast('Bloco já adicionado.','warn'); return; }
+  const order = canAddBlockInOrder(id);
+  if (!order.ok) { showToast(order.msg, 'err'); return; }
+  state.workflow.push(id);
+  const palEl = document.getElementById('pal-'+id);
+  if (palEl) palEl.classList.add('added');
+  renderWorkflow();
+  updateChecklist();
+  updateScore();
+  showGuide(id);
+  const addedBlock = BLOCKS.find(x=>x.id===id);
+  if (addedBlock?.invalid) showToast('Pegadinha adicionada: isso NÃO é etapa válida de SOAR. Remova para executar.','warn');
+  document.getElementById('canvas-empty').style.display='none';
+}
+
+function removeBlock(id) {
+  state.workflow = state.workflow.filter(x=>x!==id);
+  const palEl = document.getElementById('pal-'+id);
+  if (palEl) palEl.classList.remove('added');
+  renderWorkflow();
+  updateChecklist();
+  updateScore();
+  if (state.workflow.length===0) document.getElementById('canvas-empty').style.display='block';
+}
+
+function renderWorkflow() {
+  const empty = document.getElementById('canvas-empty');
+  const chain = document.getElementById('workflow-chain');
+  if (state.workflow.length===0) { chain.innerHTML=''; if(empty) empty.style.display='block'; return; }
+  if(empty) empty.style.display='none';
+  chain.innerHTML = state.workflow.map((id,i) => {
+    const b = BLOCKS.find(x=>x.id===id);
+    const connector = i<state.workflow.length-1 ? '<div class="node-connector"></div>' : '';
+    return `
+      <div class="workflow-node ${b.invalid?'node-distractor':'node-pending'}" id="node-${id}" onclick="showGuide('${id}')">
+        <div class="node-header">
+          <div class="node-icon" style="background:${b.color}22;color:${b.color}">${b.icon}</div>
+          <div class="node-title">${b.label}</div>
+          <div class="node-status" id="status-${id}">Pendente</div>
+        </div>
+        <div class="node-meta">Clique para ver guia técnico</div>
+        <div class="node-log" id="log-${id}"></div>
+        <button class="node-remove" onclick="event.stopPropagation();removeBlock('${id}')" title="Remover">✕</button>
+      </div>
+      ${connector}
+    `;
+  }).join('');
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showGuide(id) {
+  const b = BLOCKS.find(x=>x.id===id);
+  if (!b) return;
+  const g = b.guide;
+  document.getElementById('guide-panel').innerHTML = `
+    <div class="guide-card">
+      <h4>${b.icon} ${esc(b.label)}</h4>
+      <div class="guide-row"><div class="label">O que faz</div><div class="value">${esc(g.what)}</div></div>
+      <div class="guide-row"><div class="label">Integração típica</div><div class="value mono">${esc(g.integration)}</div></div>
+      <div class="guide-row"><div class="label">Entrada (input)</div><div class="value mono">${esc(g.input)}</div></div>
+      <div class="guide-row"><div class="label">Saída (output)</div><div class="value mono">${esc(g.output)}</div></div>
+      <div class="guide-row"><div class="label">Risco de configurar errado</div><div class="value" style="color:var(--red)">${esc(g.risk)}</div></div>
+      <div class="guide-row"><div class="label">Exemplo prático</div><div class="value mono" style="color:var(--green)">${esc(g.example)}</div></div>
+      <div class="acid-humor">${esc(g.acid)}</div>
+    </div>
+  `;
+}
+
+// ===== CHECKLIST + SCORE =====
+const CHECKLIST_SALT = 'bs-safe-soar-2026';
+const CHECKLIST_BLOB = 'OQgPGAQfRxdTTRUARFVXV0RAXw1RDQcHSB9NW1IPc1xXRBYSDQEEBQBPGgsOUgVmQltRBRZfWkNKRQ8QDhUBDwgQaRQWAUQUBgMXDy4STVJWEFtXT0BJDVECCQlBFgwVUAESEl5XABZBUVtGR24cAwQGTBJUVxYGFlkSDQ4AXlFDQVBOU0RBFFhTdlECCQlIBw5DL1AeEEkUCRZUUVtGR0gdHQgRRRAcEhQOEk8WDURfDVEqDwBEQ0VXVQseSB0VCUp5Ok1NUg9RUUZFQEkNKEMDC18aHhQXTltdV1gWHA9fQUQRRQEKAAYAW15GUw5RAVNDFABdBhsAEUxdEh4WQBBCHRUDHVkcQhQBWFNCW1lAXw1RFwMXRBUGAhNOU18fVxYaWxxDOxgBUxRDGUhLEggWQBdIEAgVDEIdTU1SD15RUFMOURdTQyIAThocotFCElNdWAYaThoOCARBUUNBUE5TREEUWFN2UQUDBkQADg5QcE8cEk1AGEgKQ1xFDwEKEgJCXENXFE5TDx8ABABBUVVBUGzxl/GVDVNJFkEUAF4DABIGTBAcEhQBElkAQ1xFdlEGEh1BU0IQGkJRTx8OFxBIEh1MG10QHBIUEBZAHBcDFwAWAgAbQRAcEhQGFl4SAw8JRAcOE19YQUVTRAscDy4cSkVWUQQECw8IEBBYDQdEFRhESQ1RAwAQSF4SCBZAPUIHCAAMThKsxrGOXRBdQ0IWXhAACgpDEgIEHFldEh4WQBBMBxJEXw0oTQ8dWVtWW1UDAQ9fQUQAXhAODRNfEG1PGkIIDxgEH0cXU00FHU5HXVdYFlEBU0MKBE8WA0NIDRB0XVUXHkgdFQemirDMDlIFRllRXQcHAgEECgRZsNwTG0IbEh4WQBBMBxJEXw0oTRUbTllVRhROUw8BBAoEWRwdCB0Pb00eFhlRRhYYRF8NUQwNHV5XEh4WQB9MEQQKRxdTTScXTlpRX1MMB0JRTUZHThIbElAXEmsQUAcQRRITREkNUQIEBl9bU1NFQC5QLg==';
+function xorB64Decode(blob, salt) {
+  const bin = atob(blob);
+  const bytes = new Uint8Array(bin.length);
+  for (let i=0; i<bin.length; i++) bytes[i] = bin.charCodeAt(i) ^ salt.charCodeAt(i % salt.length);
+  return new TextDecoder('utf-8').decode(bytes);
+}
+const CHECKLIST_ITEMS = JSON.parse(xorB64Decode(CHECKLIST_BLOB, CHECKLIST_SALT));
+
+const CASE_CHECKLIST_SALT = 'bs-safe-soar-case-2026';
+const CASE_CHECKLIST_BLOB = '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';
+const CASE_CHECKLISTS = JSON.parse(xorB64Decode(CASE_CHECKLIST_BLOB, CASE_CHECKLIST_SALT));
+
+function getActiveChecklist() {
+  return CASE_CHECKLISTS[state.selectedCase] || CHECKLIST_ITEMS;
+}
+
+function getNextRequiredItem() {
+  const checklist = getActiveChecklist();
+  return checklist.find(item => !item.cats.some(cat => state.workflow.includes(cat))) || null;
+}
+
+function canAddBlockInOrder(id) {
+  const b = BLOCKS.find(x => x.id === id);
+  if (!b) return { ok:false, msg:'Bloco inválido.' };
+  if (b.invalid) return { ok:true, trap:true };
+  const next = getNextRequiredItem();
+  if (!next) return { ok:false, msg:'Workflow obrigatório já está completo. Remova uma etapa antes de alterar o fluxo.' };
+  if (!next.cats.includes(id)) {
+    return { ok:false, msg:'Fora da ordem correta. Próxima etapa esperada: '+next.label+'.' };
+  }
+  return { ok:true };
+}
+
+function validateWorkflowOrder() {
+  const checklist = getActiveChecklist();
+  const issues = [];
+  let lastStep = -1;
+  state.workflow.forEach(id => {
+    const b = BLOCKS.find(x => x.id === id);
+    if (!b || b.invalid) return;
+    const idx = checklist.findIndex(item => item.cats.includes(id));
+    if (idx === -1) {
+      issues.push((b?.label || id)+' não pertence ao playbook obrigatório deste caso.');
+      return;
+    }
+    if (idx < lastStep) issues.push((b?.label || id)+' está fora da ordem lógica do playbook.');
+    lastStep = idx;
+  });
+  return issues;
+}
+
+
+function updateChecklist() {
+  const container = document.getElementById('checklist');
+  const checklist = getActiveChecklist();
+  let done = 0;
+  container.innerHTML = checklist.map(item => {
+    const ok = item.cats.some(cat => state.workflow.includes(cat));
+    if (ok) done++;
+    return '<div class="checklist-item '+(ok?'ok':'')+'"><div class="check-dot '+(ok?'done':'')+'">✓</div>'+item.label+'</div>';
+  }).join('');
+  const invalidCount = state.workflow.filter(id => BLOCKS.find(b=>b.id===id)?.invalid).length;
+  if (invalidCount > 0) {
+    container.innerHTML += '<div class="checklist-item" style="color:var(--yellow)"><div class="check-dot">!</div>'+invalidCount+' bloco(s) fora de escopo</div>';
+  }
+  const orderIssues = validateWorkflowOrder();
+  if (orderIssues.length > 0) {
+    container.innerHTML += '<div class="checklist-item" style="color:var(--red)"><div class="check-dot">!</div>Fluxo fora da ordem lógica</div>';
+  }
+  const pct = Math.round((done/checklist.length)*100);
+  document.getElementById('progress-pct').textContent = pct+'%';
+  document.getElementById('progress-fill').style.width = pct+'%';
+}
+
+function updateScore() {
+  const checklist = getActiveChecklist();
+  const done = checklist.filter(item => item.cats.some(cat=>state.workflow.includes(cat))).length;
+  const invalidCount = state.workflow.filter(id => BLOCKS.find(b=>b.id===id)?.invalid).length;
+  const orderPenalty = validateWorkflowOrder().length * 10;
+  const bonus = state.workflow.includes('ticket') && state.workflow.includes('relatorio') ? 5 : 0;
+  const penalty = invalidCount * 12 + orderPenalty;
+  const score = Math.max(0, Math.min(100, Math.round((done/checklist.length)*95 + bonus - penalty)));
+  state.score = score;
+  document.getElementById('score-num').textContent = score+'%';
+  const pct = score/100;
+  const color = score>=80 ? 'var(--green)' : score>=50 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('score-ring').style.background = 'conic-gradient('+color+' '+(pct*360)+'deg, var(--surface2) '+(pct*360)+'deg)';
+}
+
+function validateWorkflow() {
+  const checklist = getActiveChecklist();
+  const missing = checklist.filter(item => !item.cats.some(cat=>state.workflow.includes(cat)));
+  const invalid = state.workflow.filter(id => BLOCKS.find(b=>b.id===id)?.invalid).map(id => BLOCKS.find(b=>b.id===id));
+  const orderIssues = validateWorkflowOrder();
+  return { missing, invalid, orderIssues };
+}
+
+function hasAny(ids) { return ids.some(id => state.workflow.includes(id)); }
+
+function validateCaseSpecific() {
+  const c = CASES.find(x=>x.id===state.selectedCase);
+  const issues = [];
+  if (!state.workflow.includes('decisao')) issues.push('faltou decisão condicional');
+  if (c?.id === 'phishing' && !hasAny(['remover-email','bloquear-ip'])) issues.push('phishing precisa remover e-mail e/ou bloquear URL/domínio');
+  if (c?.id === 'powershell' && !hasAny(['isolar','bloquear-ip'])) issues.push('PowerShell suspeito precisa contenção no endpoint e/ou bloqueio de infraestrutura');
+  if (c?.id === 'mfa' && !hasAny(['desabilitar-usuario'])) issues.push('MFA fatigue pede ação no usuário: desabilitar, resetar senha ou revogar sessão');
+  if (c?.id === 'ip-malicioso' && !hasAny(['bloquear-ip'])) issues.push('comunicação com IP malicioso precisa bloqueio de IP/domínio');
+  if (c?.id === 'malware' && !hasAny(['isolar','desabilitar-usuario'])) issues.push('malware em endpoint precisa isolamento e/ou ação de credencial');
+  return issues;
+}
+
+function tryExecute() {
+  const validation = validateWorkflow();
+  if (validation.invalid.length > 0) {
+    showToast('Remova as pegadinhas fora de escopo: '+validation.invalid.map(b=>b.label).join(', '),'err');
+    return;
+  }
+  if (validation.missing.length > 0) {
+    showToast('Faltam etapas: '+validation.missing.map(m=>m.label).join(', '),'err');
+    return;
+  }
+  if (validation.orderIssues.length > 0) {
+    showToast('Corrija a ordem do playbook: '+validation.orderIssues.join(' | '),'err');
+    return;
+  }
+  const caseIssues = validateCaseSpecific();
+  if (caseIssues.length > 0) {
+    showToast('Ajuste técnico do caso: '+caseIssues.join(' | '),'err');
+    return;
+  }
+  executePlaybook();
+}
+
+// ===== EXECUTION =====
+function executePlaybook() {
+  goTo('execution');
+  const logBody = document.getElementById('exec-log-body');
+  logBody.innerHTML = '';
+  document.getElementById('btn-goto-result').style.display = 'none';
+
+  const c = CASES.find(x=>x.id===state.selectedCase);
+  const blocks = state.workflow.map(id=>BLOCKS.find(b=>b.id===id));
+  
+  let totalTime = 0;
+  let actions = 0;
+  let integrations = new Set();
+  let escalated = false;
+
+  function ts() {
+    const d = new Date();
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}.${String(d.getMilliseconds()).padStart(3,'0')}`;
+  }
+
+  function addLog(cls, msg, delay) {
+    return new Promise(res => setTimeout(() => {
+      const div = document.createElement('div');
+      div.className = `log-line log-${cls}`;
+      div.innerHTML = `<span class="log-time">[${ts()}]</span> ${msg}`;
+      logBody.appendChild(div);
+      logBody.scrollTop = logBody.scrollHeight;
+      res();
+    }, delay));
+  }
+
+  const blockLogs = generateBlockLogs(c, blocks);
+
+  async function runBlocks() {
+    await addLog('info', '▶ Iniciando execução do playbook...', 300);
+    await addLog('info', `◎ Caso: ${c.title}`, 600);
+    await addLog('info', `◎ Blocos no workflow: ${blocks.length}`, 900);
+    await addLog('data', '─────────────────────────────────', 1100);
+
+    let baseDelay = 1400;
+    let actionCount = 0;
+    let integrationSet = new Set();
+    let escalatedFlag = false;
+    let savedMins = 0;
+
+    for (let i=0; i<blocks.length; i++) {
+      const b = blocks[i];
+      const nodeEl = document.getElementById('node-'+b.id);
+      const statusEl = document.getElementById('status-'+b.id);
+      const logEl = document.getElementById('log-'+b.id);
+      const logs = blockLogs[b.id] || [];
+      
+      // Update node in builder (even though not visible)
+      if (nodeEl) {
+        nodeEl.className = 'workflow-node node-running';
+        statusEl.textContent = 'Executando';
+        statusEl.className = 'node-status status-running';
+      }
+
+      const execTime = 800 + Math.random()*1200;
+      totalTime += execTime;
+
+      await addLog('info', `▶ [${i+1}/${blocks.length}] ${b.icon} ${b.label}`, baseDelay);
+
+      for (let j=0; j<logs.length; j++) {
+        await addLog(logs[j].cls, '   '+logs[j].msg, baseDelay + 200 + j*180);
+      }
+
+      const simTime = (execTime/1000).toFixed(1);
+      await addLog('ok', `   ✓ Concluído em ${simTime}s`, baseDelay + 200 + logs.length*180 + 100);
+
+      baseDelay += 400 + logs.length*180 + 200;
+
+      if (nodeEl) {
+        nodeEl.className = 'workflow-node node-done';
+        statusEl.textContent = 'Concluído';
+        statusEl.className = 'node-status status-done';
+        if (logEl) logEl.textContent = logs.map(l=>l.msg).join('\n');
+      }
+
+      // Collect metrics
+      if (['response','notify','close','document'].some(cat=>b.category===cat)) actionCount++;
+      const intMap = {
+        trigger:'SIEM/EDR Webhook', coleta:'Parser interno', enriquecimento:'serviço de enriquecimento IP + SIEM histórico',
+        'threat-intel':'plataforma de CTI + plataforma CTI', reputacao:'Reputação multifeed',
+        'contexto-usuario':'Active Directory LDAP', 'verificacao-ativo':'EDR + CMDB',
+        decisao:'Lógica interna SOAR', sim:'Roteador', nao:'Roteador',
+        isolar:'API EDR/XDR', 'bloquear-ip':'API NGFW/SWG', 'remover-email':'API de e-mail corporativo',
+        'desabilitar-usuario':'IdP API', ticket:'ITSM API',
+        notificar:'Webhook colaborativo', escalar:'On-call', relatorio:'Template Engine',
+        fechar:'ITSM API', metricas:'Dashboard SOAR'
+      };
+      if (intMap[b.id]) integrationSet.add(intMap[b.id]);
+      if (b.id==='escalar') escalatedFlag=true;
+    }
+
+    const totalSec = (totalTime/1000).toFixed(1);
+    savedMins = Math.round(blocks.length * 3.5 + actionCount * 5);
+    state.execMetrics = {
+      time: totalSec+'s',
+      actions: actionCount,
+      integrations: integrationSet.size,
+      escalated: escalatedFlag,
+      saved: savedMins + ' min',
+      integrationList: [...integrationSet]
+    };
+
+    await addLog('data', '─────────────────────────────────', baseDelay);
+    await addLog('ok', `✓ Playbook concluído em ${totalSec}s`, baseDelay+200);
+    await addLog('info', `◎ ${actionCount} ações automatizadas | ${integrationSet.size} integrações | ~${savedMins}min de esforço manual evitado`, baseDelay+400);
+
+    if (c.malicious) {
+      await addLog('warn', `◉ Veredicto: AMEAÇA CONFIRMADA (True Positive)`, baseDelay+600);
+    } else {
+      await addLog('ok', `◉ Veredicto: Falso Positivo documentado`, baseDelay+600);
+    }
+
+    // Update metrics display
+    setTimeout(() => {
+      document.getElementById('m-time').textContent = totalSec+'s';
+      document.getElementById('m-actions').textContent = actionCount;
+      document.getElementById('m-integrations').textContent = integrationSet.size;
+      document.getElementById('m-escalate').textContent = escalatedFlag ? 'Sim' : 'Não';
+      document.getElementById('m-saved').textContent = '~'+savedMins+' min';
+
+      const vs = document.getElementById('verdict-status');
+      const vt = document.getElementById('verdict-text');
+      if (c.malicious) {
+        vs.style.background='var(--red-dim)'; vs.style.color='var(--red)';
+        vs.textContent='AMEAÇA CONFIRMADA';
+        vt.textContent='Todas as ações de contenção foram executadas. Incidente documentado, ticket aberto, equipe notificada. Ameaça contida — até o próximo alerta.';
+      } else {
+        vs.style.background='var(--green-dim)'; vs.style.color='var(--green)';
+        vs.textContent='FALSO POSITIVO';
+        vt.textContent='Alerta classificado como FP. Caso documentado para ajuste de tuning. Regra de detecção será revisada pelo time de conteúdo.';
+      }
+      document.getElementById('exec-dot').style.background='var(--green)';
+      state.executionDone = true;
+      saveProgress(true);
+      const certBtn = document.getElementById('btn-goto-result');
+      if (certBtn) { certBtn.style.display='inline-block'; certBtn.textContent='Emitir Certificado →'; }
+    }, baseDelay+800);
+  }
+
+  runBlocks();
+}
+
+function generateBlockLogs(c, blocks) {
+  const logs = {};
+  const inc = c.incident;
+  const host = inc['Host'] || inc['IP Interno'] || 'N/A';
+  const user = inc['Usuário'] || 'N/A';
+  const ip = inc['IP Origem'] || inc['IP Externo'] || 'N/A';
+  const hash = inc['Hash do Anexo'] || inc['Hash'] || 'N/A';
+
+  blocks.forEach(b => {
+    switch(b.id) {
+      case 'trigger':
+        logs[b.id]=[
+          {cls:'info',msg:`Webhook recebido da fonte: ${inc['Fonte']||'SIEM'}`},
+          {cls:'data',msg:`alert_id="${inc['ID do Alerta']}" severity="${inc['Severidade']}"`},
+          {cls:'data',msg:`timestamp="${inc['Hora do Alerta']}" source="${inc['Fonte']||'SIEM'}"`},
+          {cls:'ok',msg:'Alerta parseado e incidente instanciado com sucesso'}
+        ]; break;
+      case 'coleta':
+        logs[b.id]=[
+          {cls:'info',msg:`Extraindo campos do payload do alerta`},
+          {cls:'data',msg:`host="${host}" user="${user}"`},
+          {cls:'data',msg:`ip_origem="${ip}" hash="${hash}"`},
+          {cls:'ok',msg:`8 campos extraídos e normalizados. 0 campos nulos.`}
+        ]; break;
+      case 'enriquecimento':
+        logs[b.id]=[
+          {cls:'info',msg:`Consultando serviço de enriquecimento de IP para IP ${ip}`},
+          {cls:'data',msg:`ip="${ip}" country="${['BG','RU','UA','NL','DE'][Math.floor(Math.random()*5)]}" asn="AS${Math.floor(Math.random()*60000)+10000}"`},
+          {cls:'info',msg:`Consultando histórico SIEM para usuário ${user}`},
+          {cls:'data',msg:`alertas_30d=${Math.floor(Math.random()*8)} logins_paises_distintos=${Math.floor(Math.random()*3)+1}`},
+          {cls:'ok',msg:'Contexto enriquecido adicionado ao incidente'}
+        ]; break;
+      case 'threat-intel':
+        logs[b.id]=[
+          {cls:'info',msg:`Consultando plataforma de CTI para IOCs do incidente`},
+          {cls:'data',msg:`ioc_type="ip" value="${ip}" hits=3`},
+          {cls:'warn',msg:`IP associado a campanha conhecida. TTPs: T1566.001, T1059.001`},
+          {cls:'info',msg:`Consultando repositório CTI complementar...`},
+          {cls:'data',msg:`threat_actor="UNC4567" confidence=72 first_seen="2025-11-14"`},
+          {cls:'ok',msg:'Relatório de TI adicionado ao contexto do incidente'}
+        ]; break;
+      case 'reputacao':
+        logs[b.id]=[
+          {cls:'info',msg:`API de reputação multifeed: GET /ip_addresses/${ip}`},
+          {cls:'data',msg:`malicious=${Math.floor(Math.random()*30)+40}/70 suspicious=${Math.floor(Math.random()*10)+5}/70`},
+          {cls:'info',msg:`Feed de abuso de IP: confidence_of_abuse=${Math.floor(Math.random()*30)+65}%`},
+          {cls:'warn',msg:`Reputação: ALTO RISCO. Score agregado: ${Math.floor(Math.random()*20)+75}/100`},
+          {cls:'ok',msg:'Score de reputação adicionado ao contexto'}
+        ]; break;
+      case 'contexto-usuario':
+        logs[b.id]=[
+          {cls:'info',msg:`Diretório corporativo LDAP query: sAMAccountName=${user.split('@')[0]}`},
+          {cls:'data',msg:`groups="Domain Users, ${Math.random()>0.5?'Finance-Privileged':'Sales-Team'}" dept="Financeiro"`},
+          {cls:'data',msg:`last_login_location="São Paulo, BR" account_status="Ativo"`},
+          {cls:'ok',msg:'Contexto de usuário adicionado ao incidente'}
+        ]; break;
+      case 'verificacao-ativo':
+        logs[b.id]=[
+          {cls:'info',msg:`API EDR/XDR: GET /agents?hostname=${host}`},
+          {cls:'data',msg:`os="Windows 11 22H2" last_patch="2025-12-01" edr_status="Ativo"`},
+          {cls:'info',msg:`CMDB lookup: ${host}`},
+          {cls:'data',msg:`asset_class="Workstation" owner="${user}" criticality="Média"`},
+          {cls:'ok',msg:'Contexto do ativo coletado'}
+        ]; break;
+      case 'decisao':
+        logs[b.id]=[
+          {cls:'info',msg:'Avaliando critérios de decisão...'},
+          {cls:'data',msg:`reputation_score≥75: TRUE | ti_hit: TRUE | severity: ${inc['Severidade']}`},
+          {cls:'data',msg:`threshold_malicioso: score≥75 AND (ti_hit OR reputacao_alta)`},
+          {cls:'warn',msg:`Decisão: AMEAÇA CONFIRMADA (True Positive)`},
+          {cls:'ok',msg:'Roteando para caminho SIM → ações de resposta'}
+        ]; break;
+      case 'sim':
+        logs[b.id]=[
+          {cls:'warn',msg:'Caminho SIM ativado → Ameaça confirmada'},
+          {cls:'info',msg:'Iniciando ações de contenção e resposta...'}
+        ]; break;
+      case 'nao':
+        logs[b.id]=[
+          {cls:'ok',msg:'Caminho NÃO ativado → Falso positivo'},
+          {cls:'info',msg:'Iniciando documentação e fechamento...'}
+        ]; break;
+      case 'isolar':
+        logs[b.id]=[
+          {cls:'warn',msg:`API EDR/XDR: POST /devices/isolate → host=${host}`},
+          {cls:'data',msg:`action_id="ISO-${Date.now()}" timeout=3600`},
+          {cls:'warn',msg:'Host removido da rede corporativa. Apenas console EDR mantido.'},
+          {cls:'ok',msg:`${host} isolado com sucesso às ${new Date().toISOString().split('T')[1].split('.')[0]} UTC`}
+        ]; break;
+      case 'bloquear-ip':
+        logs[b.id]=[
+          {cls:'warn',msg:`API NGFW/SWG: POST /rules → action=DENY src/dst=${ip}`},
+          {cls:'data',msg:`rule_id="SOAR-BLK-${Math.floor(Math.random()*9000)+1000}" priority=1`},
+          {cls:'ok',msg:`IP ${ip} bloqueado em 3 pontos de controle (perimeter, proxy, DNS)`}
+        ]; break;
+      case 'remover-email':
+        logs[b.id]=[
+          {cls:'info',msg:`API de e-mail corporativo: POST /compliance/ediscovery/purge`},
+          {cls:'data',msg:`message_id="${inc['ID do Alerta']}" scope=AllMailboxes`},
+          {cls:'data',msg:'Varredura: 847 caixas verificadas'},
+          {cls:'ok',msg:`E-mail removido de 3 caixas de entrada. Remetente bloqueado.`}
+        ]; break;
+      case 'desabilitar-usuario':
+        logs[b.id]=[
+          {cls:'warn',msg:`IdP API: PATCH /users/${user} → accountEnabled=false`},
+          {cls:'data',msg:'Revogando sessões OAuth ativas...'},
+          {cls:'data',msg:`sessions_revoked=3 tokens_invalidated=7`},
+          {cls:'ok',msg:`Conta ${user} desabilitada. Senha expirada. Sessões encerradas.`}
+        ]; break;
+      case 'ticket':
+        logs[b.id]=[
+          {cls:'info',msg:'API ITSM: POST /incident'},
+          {cls:'data',msg:`ticket_id="${inc['ID do Alerta']}" priority="${c.sevColor==='critical'?'P1':'P2'}" sla="4h"`},
+          {cls:'data',msg:`assignee="SOC-N1-Team" category="Security Incident"`},
+          {cls:'ok',msg:`Ticket ${inc['ID do Alerta']} criado. SLA iniciado.`}
+        ]; break;
+      case 'notificar':
+        logs[b.id]=[
+          {cls:'info',msg:'Webhook colaborativo: POST /messages → canal #soc-alerts'},
+          {cls:'data',msg:`mensagem="[${inc['Severidade'].toUpperCase()}] ${inc['ID do Alerta']} | ${c.title} | ${host}"`},
+          {cls:'ok',msg:'Notificação entregue. 0 erros de entrega.'}
+        ]; break;
+      case 'escalar':
+        logs[b.id]=[
+          {cls:'warn',msg:'Critérios de escalonamento atingidos: severidade crítica + conta privilegiada'},
+          {cls:'info',msg:'Ferramenta on-call: POST /incidents → escalate to N2'},
+          {cls:'data',msg:`on_call_analyst="Carlos Menezes (N2)" escalation_time="${new Date().toISOString()}"`},
+          {cls:'ok',msg:'Escalonamento executado. Analista N2 notificado via SMS + app.'}
+        ]; break;
+      case 'relatorio':
+        logs[b.id]=[
+          {cls:'info',msg:'Compilando dados do incidente para relatório...'},
+          {cls:'data',msg:`campos_incluídos=32 iocs=${Math.floor(Math.random()*4)+2} ações_documentadas=${state.workflow.length}`},
+          {cls:'ok',msg:`Relatório ${inc['ID do Alerta']}-RPT.pdf gerado. ${Math.floor(Math.random()*5)+6} páginas.`}
+        ]; break;
+      case 'fechar':
+        logs[b.id]=[
+          {cls:'info',msg:`API ITSM: PATCH /incident/${inc['ID do Alerta']} → state=Resolved`},
+          {cls:'data',msg:`classificação="True Positive" MTTD="${Math.floor(Math.random()*10)+5}min" MTTR="${Math.floor(Math.random()*20)+15}min"`},
+          {cls:'ok',msg:'Incidente fechado. Métricas registradas.'}
+        ]; break;
+      case 'metricas':
+        logs[b.id]=[
+          {cls:'info',msg:'Atualizando dashboard operacional do SOAR...'},
+          {cls:'data',msg:`kpi_updated: MTTD, MTTR, volume_por_tipo, taxa_automacao`},
+          {cls:'data',msg:`automacao_rate="${Math.floor(Math.random()*20)+75}%" alertas_mes_to_date=${Math.floor(Math.random()*200)+150}`},
+          {cls:'ok',msg:'Dashboard atualizado. KPIs disponíveis para reunião de segunda-feira.'}
+        ]; break;
+      default:
+        logs[b.id]=[{cls:'ok',msg:'Etapa executada com sucesso.'}];
+    }
+  });
+  return logs;
+}
+
+// ===== CERTIFICATE =====
+function generateCert() {
+  if (!state.executionDone) { showToast('Execute o playbook corretamente antes de gerar o certificado.','warn'); return; }
+  const name = document.getElementById('cert-name').value.trim();
+  if (!name) { showToast('Informe seu nome para gerar o certificado.','warn'); return; }
+  state.certName = name;
+  
+  const canvas = document.getElementById('cert-canvas');
+  const ctx = canvas.getContext('2d');
+  const W=900, H=636;
+  
+  // Background
+  ctx.fillStyle = '#faf9f7';
+  ctx.fillRect(0,0,W,H);
+
+  // Outer border
+  ctx.strokeStyle = '#1a2d4a';
+  ctx.lineWidth = 6;
+  ctx.strokeRect(20,20,W-40,H-40);
+  
+  // Inner border
+  ctx.strokeStyle = '#c9a84c';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(32,32,W-64,H-64);
+
+  // Corner ornaments
+  function corner(x,y,r1,r2) {
+    ctx.strokeStyle='#c9a84c'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x+r1,y); ctx.lineTo(x+r2,y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x,y+r1); ctx.lineTo(x,y+r2); ctx.stroke();
+  }
+  corner(32,32,0,60); corner(W-32,32,-60,0); corner(32,H-32,0,60); corner(W-32,H-32,-60,0);
+
+  // Header band
+  const grad = ctx.createLinearGradient(0,0,W,0);
+  grad.addColorStop(0,'#0d1d33'); grad.addColorStop(0.5,'#1a2d4a'); grad.addColorStop(1,'#0d1d33');
+  ctx.fillStyle=grad; ctx.fillRect(40,40,W-80,90);
+  
+  // Brand
+  ctx.fillStyle='#c9a84c';
+  ctx.font='bold 13px "Segoe UI", sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('MARIANA BS · BE SAFE', W/2, 72);
+  
+  ctx.fillStyle='#ffffff';
+  ctx.font='bold 18px "Segoe UI", sans-serif';
+  ctx.fillText('CERTIFICADO DE CONCLUSÃO', W/2, 100);
+
+  // Title
+  ctx.fillStyle='#1a2d4a';
+  ctx.font='bold 28px "Georgia", serif';
+  ctx.fillText('Workflow SOAR na Prática', W/2, 175);
+
+  // Separator
+  ctx.strokeStyle='#c9a84c'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(100,190); ctx.lineTo(W-100,190); ctx.stroke();
+  
+  // Certify text
+  ctx.fillStyle='#444';
+  ctx.font='14px "Segoe UI", sans-serif';
+  ctx.fillText('Certificamos que', W/2, 225);
+
+  // Name
+  ctx.fillStyle='#0d1d33';
+  ctx.font='bold 32px "Georgia", serif';
+  ctx.fillText(name, W/2, 270);
+
+  // Body text - word wrap
+  ctx.fillStyle='#555';
+  ctx.font='12.5px "Segoe UI", sans-serif';
+  const bodyText = 'concluiu com aproveitamento o treinamento prático "Workflow SOAR na Prática", com carga horária de 1 hora,';
+  const bodyText2 = 'abordando ingestão de alertas, enriquecimento automático, decisões por playbook, resposta automatizada,';
+  const bodyText3 = 'notificação, escalonamento, documentação e métricas operacionais.';
+  ctx.fillText(bodyText, W/2, 305);
+  ctx.fillText(bodyText2, W/2, 323);
+  ctx.fillText(bodyText3, W/2, 341);
+
+  // Score
+  ctx.fillStyle='#c9a84c';
+  ctx.font='bold 14px "Segoe UI", sans-serif';
+  ctx.fillText(`Score obtido: ${state.score}%`, W/2, 375);
+
+  // Separator
+  ctx.strokeStyle='#ddd'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(80,395); ctx.lineTo(W-80,395); ctx.stroke();
+
+  // Footer columns
+  const col1=W/4, col2=W/2, col3=3*W/4;
+  
+  // Date
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  ctx.strokeStyle='#aaa'; ctx.lineWidth=0.8;
+  ctx.beginPath(); ctx.moveTo(col1-80,470); ctx.lineTo(col1+80,470); ctx.stroke();
+  ctx.fillStyle='#333'; ctx.font='12px "Segoe UI", sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText(dateStr, col1, 485);
+  ctx.fillStyle='#888'; ctx.font='10px "Segoe UI", sans-serif';
+  ctx.fillText('Data de emissão', col1, 498);
+
+  // Signature
+  ctx.strokeStyle='#aaa';
+  ctx.beginPath(); ctx.moveTo(col2-80,470); ctx.lineTo(col2+80,470); ctx.stroke();
+  
+  // Cursive signature
+  ctx.save();
+  ctx.fillStyle='#1a2d4a';
+  ctx.font='italic 22px "Georgia", serif';
+  ctx.fillText('Mariana BS', col2, 465);
+  ctx.restore();
+  
+  ctx.fillStyle='#333'; ctx.font='12px "Segoe UI", sans-serif';
+  ctx.fillText('Mariana BS', col2, 483);
+  ctx.fillStyle='#888'; ctx.font='10px "Segoe UI", sans-serif';
+  ctx.fillText('Instrutora · Be Safe', col2, 496);
+
+  // Cert ID
+  const certId = 'BESOAR-'+Date.now().toString(36).toUpperCase();
+  ctx.strokeStyle='#aaa';
+  ctx.beginPath(); ctx.moveTo(col3-80,470); ctx.lineTo(col3+80,470); ctx.stroke();
+  ctx.fillStyle='#333'; ctx.font='11px "Courier New", monospace';
+  ctx.fillText(certId, col3, 483);
+  ctx.fillStyle='#888'; ctx.font='10px "Segoe UI", sans-serif';
+  ctx.fillText('ID do Certificado', col3, 496);
+
+  // Bottom
+  ctx.fillStyle='#bbb'; ctx.font='10px "Segoe UI", sans-serif';
+  ctx.fillText('Este certificado foi gerado digitalmente pela plataforma de treinamento Mariana BS – Be Safe', W/2, 555);
+
+  // Gold accent dots
+  [120,240,360,480,600,720,780].forEach(x=>{
+    ctx.beginPath(); ctx.arc(x,42,2,0,Math.PI*2);
+    ctx.fillStyle='#c9a84c'; ctx.fill();
+  });
+
+  // Show
+  const img = document.getElementById('cert-img');
+  img.src = canvas.toDataURL('image/png');
+  document.getElementById('cert-preview-wrap').style.display='block';
+  document.getElementById('result-actions').style.display='flex';
+  saveProgress();
+}
+
+function updateCertPreview() { /* live update disabled for perf */ }
+
+function downloadCert() {
+  const name = document.getElementById('cert-name').value.trim() || 'certificado';
+  const canvas = document.getElementById('cert-canvas');
+  const link = document.createElement('a');
+  link.download = `certificado-soar-${name.toLowerCase().replace(/\s+/g,'-')}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  showToast('Certificado salvo!','ok');
+}
+
+// ===== PERSISTENCE =====
+function saveProgress(silent=false) {
+  const data = {
+    selectedCase: state.selectedCase,
+    workflow: state.workflow,
+    executionDone: state.executionDone,
+    certName: state.certName,
+    score: state.score
+  };
+  localStorage.setItem('soar_marianabs_v1', JSON.stringify(data));
+  if (!silent) showToast('Progresso salvo!','ok');
+}
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem('soar_marianabs_v1');
+    if (!raw) { showToast('Nenhum progresso salvo.','warn'); return; }
+    const data = JSON.parse(raw);
+    if (data.selectedCase) {
+      state.selectedCase = data.selectedCase;
+      state.workflow = data.workflow || [];
+      state.executionDone = data.executionDone || false;
+      state.certName = data.certName || '';
+      state.score = data.score || 0;
+      if (document.getElementById('cert-name')) document.getElementById('cert-name').value = state.certName;
+      startBuilder();
+      showToast('Progresso carregado!','ok');
+    }
+  } catch(e) { showToast('Erro ao carregar progresso.','err'); }
+}
+
+function clearWorkflow() {
+  state.workflow = [];
+  renderPalette();
+  renderWorkflow();
+  updateChecklist();
+  updateScore();
+  document.getElementById('canvas-empty').style.display='block';
+  document.getElementById('guide-panel').innerHTML='<div class="guide-card"><p style="font-size:12px;color:var(--text3);font-family:var(--font-mono);">← Clique em um bloco no canvas para ver o guia técnico.</p></div>';
+  showToast('Workflow limpo.','warn');
+}
+
+function exportJSON() {
+  const c = CASES.find(x=>x.id===state.selectedCase);
+  const data = {
+    treinamento: 'Workflow SOAR na Prática',
+    instrutora: 'Mariana BS – Be Safe',
+    data_exportacao: new Date().toISOString(),
+    aluno: state.certName || 'Não informado',
+    caso_de_uso: c?.title || 'N/A',
+    score: state.score+'%',
+    workflow: state.workflow.map(id => {
+      const b = BLOCKS.find(x=>x.id===id);
+      return { id, label: b?.label, categoria: b?.category };
+    }),
+    metricas: state.execMetrics,
+    execucao_concluida: state.executionDone,
+    nota_tecnica: 'SOAR reduz trabalho repetitivo, mas depende de bons alertas, boas integrações e playbooks bem definidos. Este relatório foi gerado automaticamente pela simulação.'
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `soar-relatorio-${Date.now()}.json`;
+  link.click();
+  showToast('Relatório exportado!','ok');
+}
+
+function restartAll() {
+  localStorage.removeItem('soar_marianabs_v1');
+  state.selectedCase = null;
+  state.workflow = [];
+  state.executionDone = false;
+  state.certName = '';
+  state.score = 0;
+  state.execMetrics = {};
+  goTo('intro');
+}
+
+// ===== TOAST =====
+function showToast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show '+type;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.className='toast', 3000);
+}
+
+// ===== CLICK / KEYBOARD BINDINGS =====
+function bindInteractiveControls() {
+  document.addEventListener('click', function(e) {
+    const caseCard = e.target.closest('.case-card');
+    if (caseCard && caseCard.dataset.caseId) {
+      selectCase(caseCard.dataset.caseId);
+      return;
+    }
+
+    const paletteBlock = e.target.closest('.palette-block');
+    if (paletteBlock && paletteBlock.dataset.blockId) {
+      if (!paletteBlock.classList.contains('added')) addBlock(paletteBlock.dataset.blockId);
+      return;
+    }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const caseCard = e.target.closest('.case-card');
+    if (caseCard && caseCard.dataset.caseId) {
+      e.preventDefault();
+      selectCase(caseCard.dataset.caseId);
+      return;
+    }
+
+    const paletteBlock = e.target.closest('.palette-block');
+    if (paletteBlock && paletteBlock.dataset.blockId) {
+      e.preventDefault();
+      if (!paletteBlock.classList.contains('added')) addBlock(paletteBlock.dataset.blockId);
+    }
+  });
+}
+
+// ===== INIT =====
+renderCases();
+bindInteractiveControls();
+
+// Load saved case selection if any
+const savedRaw = localStorage.getItem('soar_marianabs_v1');
+if (savedRaw) {
+  try {
+    const saved = JSON.parse(savedRaw);
+    if (saved.selectedCase) {
+      state.selectedCase = saved.selectedCase;
+      const card = document.getElementById('casecard-' + saved.selectedCase);
+      if (card) card.classList.add('selected');
+      const btn = document.getElementById('btn-start-builder');
+      if (btn) btn.disabled = false;
+    }
+  } catch(e){}
+}
+</script>
+</body>
+</html>
