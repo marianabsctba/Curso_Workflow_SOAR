@@ -1506,6 +1506,130 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   }
 }
 
+
+/* ===== DIDÁTICA DOS BLOCOS + ERRO VISUAL ===== */
+.palette-block.wrong-click,
+.workflow-node.wrong-click {
+  border-color: var(--red) !important;
+  background: var(--red-dim) !important;
+  color: var(--red) !important;
+  animation: wrongShake .35s ease-in-out 0s 2;
+  box-shadow: 0 0 18px rgba(255,68,85,.35);
+}
+
+@keyframes wrongShake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+
+.learning-popup-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  background: rgba(0,0,0,.72);
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.learning-popup-overlay.open { display: flex; }
+
+.learning-popup {
+  width: min(560px, 100%);
+  background: linear-gradient(180deg, #171b24, #0f1117);
+  border: 1px solid var(--red);
+  border-radius: 16px;
+  box-shadow: 0 0 36px rgba(255,68,85,.22);
+  padding: 22px;
+}
+
+.learning-popup.ok {
+  border-color: var(--accent);
+  box-shadow: 0 0 36px rgba(0,212,255,.18);
+}
+
+.learning-popup h3 {
+  font-size: 18px;
+  color: var(--red);
+  margin-bottom: 10px;
+}
+
+.learning-popup.ok h3 { color: var(--accent); }
+
+.learning-popup p {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.learning-popup .lesson-box {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.55;
+  margin: 12px 0;
+}
+
+.learning-popup button {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.block-help-line {
+  display:block;
+  font-size:10px;
+  color:var(--text3);
+  font-family:var(--font-mono);
+  margin-top:3px;
+  line-height:1.25;
+}
+
+.guide-card.guide-empty {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, var(--surface), #101722);
+}
+
+/* ===== BOTÃO REAL DO GUIA TÉCNICO ===== */
+.guide-inline-btn {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 30px;
+  border: 1px solid var(--accent);
+  background: rgba(0,212,255,.08);
+  color: var(--accent);
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+.guide-inline-btn:hover {
+  background: rgba(0,212,255,.18);
+  box-shadow: 0 0 14px rgba(0,212,255,.18);
+}
+.node-guide-btn {
+  margin-left: 38px;
+  margin-top: 8px;
+  width: auto;
+  padding: 6px 10px;
+}
+@media (max-width: 768px) {
+  .node-guide-btn { margin-left: 0; width: 100%; }
+}
+
 </style>
 </head>
 <body>
@@ -1646,8 +1770,11 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 
       <div class="panel-section-title">Guia do Bloco</div>
       <div id="guide-panel">
-        <div class="guide-card">
-          <p style="font-size:12px;color:var(--text3);font-family:var(--font-mono);">← Clique em um bloco no canvas para ver o guia técnico.</p>
+        <div class="guide-card guide-empty">
+          <h4>Como usar os blocos</h4>
+          <div class="guide-row"><div class="label">Aprendizado</div><div class="value">Clique no botão “Ver guia técnico” dentro de cada bloco para aprender sem adicionar nada. Clique no bloco inteiro apenas quando quiser tentar adicioná-lo ao playbook. Se estiver errado, ficará vermelho e abrirá um popup explicando o motivo.</div></div>
+          <div class="guide-row"><div class="label">Lógica esperada</div><div class="value mono">Alerta → coleta → enriquecimento → decisão → resposta → comunicação → documentação → métricas.</div></div>
+          <div class="acid-humor">SOAR bom ensina processo. SOAR ruim só automatiza vergonha com log bonito.</div>
         </div>
       </div>
     </div>
@@ -1703,7 +1830,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 <!-- ============================= RESULT SCREEN ============================= -->
 <div id="screen-result" class="screen">
   <div class="result-title">Playbook Concluído</div>
-  <p class="result-subtitle">Emita seu certificado de conclusão do treinamento.</p>
+  <p class="result-subtitle">Este desafio tem certificado PNG. Ele só aparece depois da execução válida do playbook.</p>
 
   <div class="cert-form">
     <h3>Gerar Certificado</h3>
@@ -1733,6 +1860,16 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     <button class="btn-secondary" onclick="goTo('execution')">← Voltar aos resultados</button>
     <button class="btn-secondary" onclick="goTo('builder')">Editar playbook</button>
     <button class="btn-secondary" onclick="returnHome(false)">Início</button>
+  </div>
+</div>
+
+<!-- POPUP DIDÁTICO -->
+<div class="learning-popup-overlay" id="learning-popup-overlay" onclick="if(event.target===this) closeLearningPopup()">
+  <div class="learning-popup" id="learning-popup">
+    <h3 id="learning-popup-title">Ajuste necessário</h3>
+    <p id="learning-popup-msg"></p>
+    <div class="lesson-box" id="learning-popup-lesson"></div>
+    <button class="btn-primary" onclick="closeLearningPopup()">Entendi, vou corrigir</button>
   </div>
 </div>
 
@@ -2277,6 +2414,7 @@ function startBuilder() {
   renderWorkflow();
   updateChecklist();
   updateScore();
+  if (!state.workflow.length) setDefaultGuide();
   goTo('builder');
 }
 
@@ -2296,29 +2434,65 @@ function renderPalette() {
   const shuffled = [...BLOCKS].sort(() => Math.random()-0.5);
   container.innerHTML = shuffled.map(b => `
     <div class="palette-block ${state.workflow.includes(b.id)?'added':''} ${b.invalid?'distractor':''}" 
-         id="pal-${b.id}" data-block-id="${b.id}" role="button" tabindex="0">
+         id="pal-${b.id}" data-block-id="${b.id}" role="button" tabindex="0" title="Clique para ver o guia técnico e tentar adicionar ao playbook">
       <div class="block-dot" style="background:${b.color}"></div>
-      ${b.label}
+      <div style="width:100%;">
+        <strong>${b.label}</strong>
+        <span class="block-help-line">Clique no botão abaixo para aprender antes de adicionar.</span>
+        <button type="button" class="guide-inline-btn" data-guide-id="${b.id}" onclick="event.stopPropagation(); showGuide('${b.id}'); scrollGuideIntoView(); showToast('Guia técnico aberto para: ${b.label}', 'ok');">Ver guia técnico</button>
+      </div>
     </div>
   `).join('');
 }
 
 function addBlock(id) {
-  if (state.workflow.includes(id)) { showToast('Bloco já adicionado.','warn'); return; }
-  const order = canAddBlockInOrder(id);
-  if (!order.ok) { showToast(order.msg, 'err'); return; }
-  state.workflow.push(id);
   const palEl = document.getElementById('pal-'+id);
+  showGuide(id);
+
+  if (state.workflow.includes(id)) {
+    markWrong(palEl);
+    showLearningPopup(
+      'Bloco repetido',
+      'Esse bloco já está no canvas. Em SOAR, repetir uma etapa sem necessidade costuma gerar ruído, ação duplicada e aquele ticket que ninguém quer assumir.',
+      'Remova o bloco existente se quiser reorganizar o fluxo. O playbook precisa ser claro, rastreável e sem automação duplicada.'
+    );
+    showToast('Bloco já adicionado. Veja o guia técnico à direita.', 'warn');
+    return;
+  }
+
+  const order = canAddBlockInOrder(id);
+  if (!order.ok) {
+    markWrong(palEl);
+    const next = getNextRequiredItem();
+    showLearningPopup(
+      'Clique errado: etapa fora da ordem',
+      order.msg,
+      'Pense como um playbook real: primeiro o SOAR recebe o alerta, depois coleta dados, enriquece evidências, decide e só então executa contenção, notificação, ticket e relatório. Automatizar fora de ordem é transformar incidente em incêndio com API.'
+    );
+    showToast(order.msg, 'err');
+    return;
+  }
+
+  state.workflow.push(id);
   if (palEl) palEl.classList.add('added');
   renderWorkflow();
   updateChecklist();
   updateScore();
   showGuide(id);
   const addedBlock = BLOCKS.find(x=>x.id===id);
-  if (addedBlock?.invalid) showToast('Pegadinha adicionada: isso NÃO é etapa válida de SOAR. Remova para executar.','warn');
+  if (addedBlock?.invalid) {
+    markWrong(document.getElementById('node-'+id));
+    showLearningPopup(
+      'Pegadinha adicionada',
+      'Esse bloco entrou no canvas, mas ele NÃO é uma etapa válida para este playbook de SOAR.',
+      'A ideia é aprender a separar ação operacional real de enfeite perigoso. Bloco fora de escopo reduz score e impede a execução até ser removido.'
+    );
+    showToast('Pegadinha adicionada: isso NÃO é etapa válida de SOAR. Remova para executar.','warn');
+  } else {
+    showToast('Bloco adicionado. Guia técnico atualizado à direita.', 'ok');
+  }
   document.getElementById('canvas-empty').style.display='none';
 }
-
 function removeBlock(id) {
   state.workflow = state.workflow.filter(x=>x!==id);
   const palEl = document.getElementById('pal-'+id);
@@ -2344,7 +2518,8 @@ function renderWorkflow() {
           <div class="node-title">${b.label}</div>
           <div class="node-status" id="status-${id}">Pendente</div>
         </div>
-        <div class="node-meta">Clique para ver guia técnico</div>
+        <div class="node-meta">Este bloco já está no fluxo. Use o botão abaixo para abrir o guia técnico.</div>
+        <button type="button" class="guide-inline-btn node-guide-btn" onclick="event.stopPropagation(); showGuide('${id}'); scrollGuideIntoView(); showToast('Guia técnico aberto para: ${b.label}', 'ok');">Clique aqui para ver guia técnico</button>
         <div class="node-log" id="log-${id}"></div>
         <button class="node-remove" onclick="event.stopPropagation();removeBlock('${id}')" title="Remover">✕</button>
       </div>
@@ -2357,14 +2532,58 @@ function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function setDefaultGuide() {
+  const panel = document.getElementById('guide-panel');
+  if (!panel) return;
+  panel.innerHTML = `
+    <div class="guide-card guide-empty">
+      <h4>Como usar os blocos</h4>
+      <div class="guide-row"><div class="label">Aprendizado</div><div class="value">Clique no botão “Ver guia técnico” dentro de cada bloco para aprender sem adicionar nada. Clique no bloco inteiro apenas quando quiser tentar adicioná-lo ao playbook. Se estiver errado, ficará vermelho e abrirá um popup explicando o motivo.</div></div>
+      <div class="guide-row"><div class="label">Lógica esperada</div><div class="value mono">Alerta → coleta → enriquecimento → decisão → resposta → comunicação → documentação → métricas.</div></div>
+      <div class="acid-humor">SOAR bom ensina processo. SOAR ruim só automatiza vergonha com log bonito.</div>
+    </div>
+  `;
+}
+
+function markWrong(el) {
+  if (!el) return;
+  el.classList.remove('wrong-click');
+  void el.offsetWidth;
+  el.classList.add('wrong-click');
+  setTimeout(() => el.classList.remove('wrong-click'), 1600);
+}
+
+function showLearningPopup(title, msg, lesson, kind='err') {
+  const overlay = document.getElementById('learning-popup-overlay');
+  const box = document.getElementById('learning-popup');
+  if (!overlay || !box) return;
+  document.getElementById('learning-popup-title').textContent = title;
+  document.getElementById('learning-popup-msg').textContent = msg;
+  document.getElementById('learning-popup-lesson').textContent = lesson;
+  box.className = 'learning-popup ' + (kind === 'ok' ? 'ok' : '');
+  overlay.classList.add('open');
+}
+
+function closeLearningPopup() {
+  const overlay = document.getElementById('learning-popup-overlay');
+  if (overlay) overlay.classList.remove('open');
+}
+
+function scrollGuideIntoView() {
+  const panel = document.getElementById('guide-panel');
+  if (!panel) return;
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
 function showGuide(id) {
   const b = BLOCKS.find(x=>x.id===id);
   if (!b) return;
   const g = b.guide;
   document.getElementById('guide-panel').innerHTML = `
-    <div class="guide-card">
+    <div class="guide-card ${b.invalid?'guide-empty':''}">
       <h4>${b.icon} ${esc(b.label)}</h4>
-      <div class="guide-row"><div class="label">O que faz</div><div class="value">${esc(g.what)}</div></div>
+      ${b.invalid ? '<div class="guide-row"><div class="label">Atenção</div><div class="value" style="color:var(--yellow)">Este bloco é uma pegadinha/fora de escopo. Ele serve para treinar julgamento: nem tudo que parece ação bonita pertence a um playbook seguro.</div></div>' : ''}
+      <div class="guide-row"><div class="label">Por que este bloco existe</div><div class="value">${esc(g.what)}</div></div>
       <div class="guide-row"><div class="label">Integração típica</div><div class="value mono">${esc(g.integration)}</div></div>
       <div class="guide-row"><div class="label">Entrada (input)</div><div class="value mono">${esc(g.input)}</div></div>
       <div class="guide-row"><div class="label">Saída (output)</div><div class="value mono">${esc(g.output)}</div></div>
@@ -2492,19 +2711,25 @@ function validateCaseSpecific() {
 function tryExecute() {
   const validation = validateWorkflow();
   if (validation.invalid.length > 0) {
+    validation.invalid.forEach(b => markWrong(document.getElementById('node-'+b.id)));
+    showLearningPopup('Playbook ainda tem bloco errado', 'Remova as pegadinhas fora de escopo: '+validation.invalid.map(b=>b.label).join(', '), 'Bloco fora de escopo é ótimo para treino, péssimo para produção. Em SOAR, cada ação precisa ter entrada, saída, responsável e justificativa operacional.');
     showToast('Remova as pegadinhas fora de escopo: '+validation.invalid.map(b=>b.label).join(', '),'err');
     return;
   }
   if (validation.missing.length > 0) {
+    showLearningPopup('Faltam etapas obrigatórias', 'Faltam etapas: '+validation.missing.map(m=>m.label).join(', '), 'Um playbook completo precisa cobrir do alerta até a documentação final. Sem isso, você até responde ao incidente, mas depois ninguém consegue provar o que aconteceu. Auditoria ama esse tipo de tragédia.');
     showToast('Faltam etapas: '+validation.missing.map(m=>m.label).join(', '),'err');
     return;
   }
   if (validation.orderIssues.length > 0) {
+    state.workflow.forEach(id => markWrong(document.getElementById('node-'+id)));
+    showLearningPopup('Ordem lógica incorreta', 'Corrija a ordem do playbook: '+validation.orderIssues.join(' | '), 'A ordem importa porque resposta automática depende de evidência. Conter antes de enriquecer pode bloquear ativo legítimo; notificar antes de decidir pode espalhar pânico com dashboard bonito.');
     showToast('Corrija a ordem do playbook: '+validation.orderIssues.join(' | '),'err');
     return;
   }
   const caseIssues = validateCaseSpecific();
   if (caseIssues.length > 0) {
+    showLearningPopup('Ajuste técnico do caso', 'Ajuste técnico do caso: '+caseIssues.join(' | '), 'Cada tipo de incidente exige resposta proporcional. Phishing, PowerShell, MFA fatigue, C2 e malware não são o mesmo bicho com roupa diferente.');
     showToast('Ajuste técnico do caso: '+caseIssues.join(' | '),'err');
     return;
   }
@@ -3006,7 +3231,7 @@ function clearWorkflow() {
   updateChecklist();
   updateScore();
   document.getElementById('canvas-empty').style.display='block';
-  document.getElementById('guide-panel').innerHTML='<div class="guide-card"><p style="font-size:12px;color:var(--text3);font-family:var(--font-mono);">← Clique em um bloco no canvas para ver o guia técnico.</p></div>';
+  setDefaultGuide();
   showToast('Workflow limpo.','warn');
 }
 
@@ -3064,9 +3289,21 @@ function bindInteractiveControls() {
       return;
     }
 
+    const guideBtn = e.target.closest('[data-guide-id]');
+    if (guideBtn && guideBtn.dataset.guideId) {
+      e.preventDefault();
+      e.stopPropagation();
+      showGuide(guideBtn.dataset.guideId);
+      scrollGuideIntoView();
+      showToast('Guia técnico aberto. Agora leia antes de automatizar o caos.', 'ok');
+      return;
+    }
+
     const paletteBlock = e.target.closest('.palette-block');
     if (paletteBlock && paletteBlock.dataset.blockId) {
+      showGuide(paletteBlock.dataset.blockId);
       if (!paletteBlock.classList.contains('added')) addBlock(paletteBlock.dataset.blockId);
+      else { markWrong(paletteBlock); showToast('Bloco já está no canvas. Guia técnico aberto à direita.', 'warn'); }
       return;
     }
   });
@@ -3080,10 +3317,22 @@ function bindInteractiveControls() {
       return;
     }
 
+    const guideBtn = e.target.closest('[data-guide-id]');
+    if (guideBtn && guideBtn.dataset.guideId) {
+      e.preventDefault();
+      e.stopPropagation();
+      showGuide(guideBtn.dataset.guideId);
+      scrollGuideIntoView();
+      showToast('Guia técnico aberto. Agora leia antes de automatizar o caos.', 'ok');
+      return;
+    }
+
     const paletteBlock = e.target.closest('.palette-block');
     if (paletteBlock && paletteBlock.dataset.blockId) {
       e.preventDefault();
+      showGuide(paletteBlock.dataset.blockId);
       if (!paletteBlock.classList.contains('added')) addBlock(paletteBlock.dataset.blockId);
+      else { markWrong(paletteBlock); showToast('Bloco já está no canvas. Guia técnico aberto à direita.', 'warn'); }
     }
   });
 }
