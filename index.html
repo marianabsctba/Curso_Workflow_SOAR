@@ -1630,6 +1630,65 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   .node-guide-btn { margin-left: 0; width: 100%; }
 }
 
+
+/* ===== AJUSTE CERTIFICADO: nome apenas na primeira tela + botão bloqueado ===== */
+.cert-start-box {
+  background: linear-gradient(180deg, var(--surface), #101722);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto 28px;
+  box-shadow: 0 0 24px rgba(0,212,255,.12);
+}
+.cert-start-box label {
+  display:block;
+  font-size:11px;
+  color:var(--accent);
+  font-family:var(--font-mono);
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.cert-start-box input {
+  width:100%;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  color:var(--text);
+  font-size:15px;
+  padding:12px 14px;
+  border-radius:8px;
+  outline:none;
+}
+.cert-start-box input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,.12); }
+.cert-start-box .hint {
+  margin-top:9px;
+  font-size:12px;
+  color:var(--text2);
+  line-height:1.5;
+}
+.btn-cert-locked[disabled] {
+  opacity:.55;
+  filter:grayscale(.35);
+  cursor:not-allowed;
+  box-shadow:none !important;
+  transform:none !important;
+}
+.cert-requirement-box {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:22px;
+  max-width:620px;
+  width:100%;
+  margin-bottom:24px;
+  text-align:left;
+}
+.cert-requirement-box h3 { color:var(--accent); margin-bottom:10px; }
+.cert-requirement-box p { font-size:13px; color:var(--text2); line-height:1.65; margin-bottom:10px; }
+.cert-requirement-box strong { color:var(--text); }
+
 </style>
 </head>
 <body>
@@ -1676,6 +1735,12 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     <p>SOAR <strong>não cria detecção</strong>. Ele consome alertas gerados por outras ferramentas (SIEM, EDR, IDS). Sem boas regras de detecção, sem boas integrações e sem playbooks bem definidos, o SOAR é apenas um orçamento caro com muitos conectores desconfigurados. Alertas ruins entram, ações erradas saem — na velocidade da luz.</p>
   </div>
 
+  <div class="cert-start-box">
+    <label for="cert-name-intro">Nome para o certificado</label>
+    <input type="text" id="cert-name-intro" placeholder="Digite seu nome completo antes de começar" autocomplete="name" oninput="setCertNameFromIntro()">
+    <div class="hint">Esse nome será usado no certificado. Depois ele não será solicitado de novo — porque formulário repetido também é incidente.</div>
+  </div>
+
   <div class="intro-meta">
     <div class="intro-meta-item">
       <div class="label">Carga horária</div>
@@ -1695,7 +1760,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     </div>
   </div>
 
-  <button class="btn-primary" onclick="goTo('case')">Começar treinamento →</button>
+  <button class="btn-primary" onclick="startTrainingIntro()">Começar treinamento →</button>
 </div>
 
 <!-- ============================= CASE SCREEN ============================= -->
@@ -1723,6 +1788,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
       <button class="btn-secondary" onclick="loadProgress()" title="Carregar">Carregar</button>
       <button class="btn-secondary" onclick="exportJSON()" title="Exportar JSON">Export JSON</button>
       <button class="btn-danger" onclick="clearWorkflow()">Limpar</button>
+      <button class="btn-primary btn-cert-locked" id="btn-cert-builder" onclick="openCertificateScreen()" disabled>🔒 Certificado</button>
       <button class="btn-primary" id="btn-exec" onclick="tryExecute()">▶ Executar Playbook</button>
     </div>
   </div>
@@ -1823,7 +1889,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   <div style="margin-top:32px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
     <button class="btn-secondary" onclick="goTo('builder')">← Editar Playbook</button>
     <button class="btn-secondary" onclick="returnHome(false)">Início</button>
-    <button class="btn-primary" id="btn-goto-result" onclick="openCertificateScreen()" style="display:none;">Emitir Certificado →</button>
+    <button class="btn-primary btn-cert-locked" id="btn-goto-result" onclick="openCertificateScreen()" disabled>🔒 Certificado bloqueado</button>
   </div>
 </div>
 
@@ -1832,16 +1898,12 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   <div class="result-title">Playbook Concluído</div>
   <p class="result-subtitle">Este desafio tem certificado PNG. Ele só aparece depois da execução válida do playbook.</p>
 
-  <div class="cert-form">
-    <h3>Gerar Certificado</h3>
-    <div class="form-group">
-      <label>Seu nome completo</label>
-      <input type="text" id="cert-name" placeholder="Ex: Ana Oliveira" oninput="updateCertPreview()">
-    </div>
-    <div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:16px;">
-      O certificado atesta a conclusão do treinamento <strong>"Workflow SOAR na Prática"</strong> com carga horária de 1 hora, abordando ingestão de alertas, enriquecimento automático, decisões por playbook, resposta automatizada, notificação, escalonamento, documentação e métricas operacionais.
-    </div>
-    <button class="btn-primary" style="width:100%;" onclick="generateCert()">Gerar certificado</button>
+  <div class="cert-requirement-box">
+    <h3>Certificado liberado</h3>
+    <p><strong>Nome no certificado:</strong> <span id="cert-name-display">—</span></p>
+    <p>Requisito: resolver e executar corretamente <strong>apenas 1 playbook</strong>. Não precisa concluir todos os casos de uso.</p>
+    <p>O certificado atesta a conclusão do treinamento <strong>"Workflow SOAR na Prática"</strong> com carga horária de 1 hora, abordando ingestão de alertas, enriquecimento automático, decisões por playbook, resposta automatizada, notificação, escalonamento, documentação e métricas operacionais.</p>
+    <button class="btn-primary" style="width:100%;" onclick="generateCert()">Gerar certificado PNG</button>
   </div>
 
   <canvas id="cert-canvas" width="900" height="636"></canvas>
@@ -1884,6 +1946,7 @@ const state = {
   selectedCase: null,
   workflow: [], // array of block IDs
   executionDone: false,
+  completedPlaybooks: 0,
   certName: '',
   score: 0,
   execMetrics: {}
@@ -2336,6 +2399,41 @@ const CATEGORY_MAP = {
 };
 
 // ===== NAVIGATION =====
+// ===== CERTIFICATE GATE =====
+function setCertNameFromIntro() {
+  const input = document.getElementById('cert-name-intro');
+  state.certName = input ? input.value.trim() : state.certName;
+  updateCertificateButtons();
+}
+
+function startTrainingIntro() {
+  setCertNameFromIntro();
+  if (!state.certName) {
+    showLearningPopup('Nome obrigatório', 'Digite o nome para o certificado antes de começar.', 'Sem nome, o certificado sai órfão. E certificado órfão dá mais trabalho que alerta sem hostname.');
+    showToast('Digite o nome para o certificado na primeira tela.', 'warn');
+    const input = document.getElementById('cert-name-intro');
+    if (input) { input.focus(); input.style.borderColor = 'var(--red)'; setTimeout(()=> input.style.borderColor='', 1200); }
+    return;
+  }
+  goTo('case');
+}
+
+function certificateReady() {
+  return !!state.certName && state.executionDone && state.completedPlaybooks >= 1;
+}
+
+function updateCertificateButtons() {
+  const ready = certificateReady();
+  ['btn-cert-builder','btn-goto-result'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.disabled = !ready;
+    btn.classList.toggle('btn-cert-locked', !ready);
+    btn.textContent = ready ? 'Emitir Certificado →' : '🔒 Certificado bloqueado';
+    btn.title = ready ? 'Certificado liberado: 1 playbook resolvido.' : 'Bloqueado: informe o nome na primeira tela e resolva 1 playbook.';
+  });
+}
+
 function goTo(s) {
   const target = document.getElementById('screen-'+s);
   if (!target) return;
@@ -2344,10 +2442,7 @@ function goTo(s) {
   state.screen = s;
   window.scrollTo(0,0);
   if (s === 'result') prepareCertificateScreen();
-  if (s === 'execution' && state.executionDone) {
-    const btn = document.getElementById('btn-goto-result');
-    if (btn) btn.style.display = 'inline-block';
-  }
+  updateCertificateButtons();
 }
 
 function returnHome(reset=false) {
@@ -2356,21 +2451,27 @@ function returnHome(reset=false) {
 }
 
 function openCertificateScreen() {
-  if (!state.executionDone) {
-    showToast('Execute o playbook corretamente antes de emitir o certificado.', 'warn');
+  if (!state.certName) {
+    showToast('Informe o nome para o certificado na primeira tela.', 'warn');
+    goTo('intro');
+    return;
+  }
+  if (!certificateReady()) {
+    showToast('Certificado bloqueado: resolva e execute corretamente 1 playbook.', 'warn');
     return;
   }
   goTo('result');
 }
 
 function prepareCertificateScreen() {
-  const input = document.getElementById('cert-name');
-  if (input && state.certName) input.value = state.certName;
+  const display = document.getElementById('cert-name-display');
+  if (display) display.textContent = state.certName || 'Nome não informado';
   const preview = document.getElementById('cert-preview-wrap');
   const actions = document.getElementById('result-actions');
   if (preview) preview.style.display = 'none';
   if (actions) actions.style.display = 'none';
-  if (!state.executionDone) showToast('Certificado liberado após executar o playbook corretamente.', 'warn');
+  if (!certificateReady()) showToast('Certificado liberado após resolver 1 playbook corretamente.', 'warn');
+  updateCertificateButtons();
 }
 
 // ===== CASE RENDERING =====
@@ -2741,7 +2842,9 @@ function executePlaybook() {
   goTo('execution');
   const logBody = document.getElementById('exec-log-body');
   logBody.innerHTML = '';
-  document.getElementById('btn-goto-result').style.display = 'none';
+  state.executionDone = false;
+  state.completedPlaybooks = 0;
+  updateCertificateButtons();
 
   const c = CASES.find(x=>x.id===state.selectedCase);
   const blocks = state.workflow.map(id=>BLOCKS.find(b=>b.id===id));
@@ -2874,9 +2977,10 @@ function executePlaybook() {
       }
       document.getElementById('exec-dot').style.background='var(--green)';
       state.executionDone = true;
+      state.completedPlaybooks = 1;
+      updateCertificateButtons();
       saveProgress(true);
-      const certBtn = document.getElementById('btn-goto-result');
-      if (certBtn) { certBtn.style.display='inline-block'; certBtn.textContent='Emitir Certificado →'; }
+      showToast('Certificado liberado: 1 playbook resolvido corretamente.', 'ok');
     }, baseDelay+800);
   }
 
@@ -3041,9 +3145,8 @@ function generateBlockLogs(c, blocks) {
 // ===== CERTIFICATE =====
 function generateCert() {
   if (!state.executionDone) { showToast('Execute o playbook corretamente antes de gerar o certificado.','warn'); return; }
-  const name = document.getElementById('cert-name').value.trim();
-  if (!name) { showToast('Informe seu nome para gerar o certificado.','warn'); return; }
-  state.certName = name;
+  const name = (state.certName || '').trim();
+  if (!name) { showToast('Volte à primeira tela e informe o nome para gerar o certificado.','warn'); return; }
   
   const canvas = document.getElementById('cert-canvas');
   const ctx = canvas.getContext('2d');
@@ -3184,7 +3287,7 @@ function generateCert() {
 function updateCertPreview() { /* live update disabled for perf */ }
 
 function downloadCert() {
-  const name = document.getElementById('cert-name').value.trim() || 'certificado';
+  const name = (state.certName || 'certificado').trim();
   const canvas = document.getElementById('cert-canvas');
   const link = document.createElement('a');
   link.download = `certificado-soar-${name.toLowerCase().replace(/\s+/g,'-')}.png`;
@@ -3199,6 +3302,7 @@ function saveProgress(silent=false) {
     selectedCase: state.selectedCase,
     workflow: state.workflow,
     executionDone: state.executionDone,
+    completedPlaybooks: state.completedPlaybooks,
     certName: state.certName,
     score: state.score
   };
@@ -3215,9 +3319,12 @@ function loadProgress() {
       state.selectedCase = data.selectedCase;
       state.workflow = data.workflow || [];
       state.executionDone = data.executionDone || false;
+      state.completedPlaybooks = data.completedPlaybooks || (state.executionDone ? 1 : 0);
       state.certName = data.certName || '';
       state.score = data.score || 0;
-      if (document.getElementById('cert-name')) document.getElementById('cert-name').value = state.certName;
+      const introName = document.getElementById('cert-name-intro');
+      if (introName) introName.value = state.certName;
+      updateCertificateButtons();
       startBuilder();
       showToast('Progresso carregado!','ok');
     }
@@ -3265,9 +3372,13 @@ function restartAll() {
   state.selectedCase = null;
   state.workflow = [];
   state.executionDone = false;
+  state.completedPlaybooks = 0;
   state.certName = '';
   state.score = 0;
   state.execMetrics = {};
+  const introName = document.getElementById('cert-name-intro');
+  if (introName) introName.value = '';
+  updateCertificateButtons();
   goTo('intro');
 }
 
@@ -3346,6 +3457,9 @@ const savedRaw = localStorage.getItem('soar_marianabs_v1');
 if (savedRaw) {
   try {
     const saved = JSON.parse(savedRaw);
+    if (saved.certName) { state.certName = saved.certName; const introName = document.getElementById('cert-name-intro'); if (introName) introName.value = state.certName; }
+    if (saved.completedPlaybooks) state.completedPlaybooks = saved.completedPlaybooks;
+    updateCertificateButtons();
     if (saved.selectedCase) {
       state.selectedCase = saved.selectedCase;
       const card = document.getElementById('casecard-' + saved.selectedCase);
@@ -3356,5 +3470,8 @@ if (savedRaw) {
   } catch(e){}
 }
 </script>
+
+
+
 </body>
 </html>
